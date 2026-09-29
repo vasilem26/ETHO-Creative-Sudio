@@ -269,7 +269,7 @@
       </div>
 
       <div>
-        <form id="form" novalidate>
+        <form id="form" novalidate action="https://formspree.io/f/xqpawdgj" method="POST">
           <div class="row">
             <div><label for="name">Your name</label><input id="name" name="name" autocomplete="name" required></div>
             <div><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required></div>
@@ -300,8 +300,9 @@
             <label for="msg">About the project</label>
             <textarea id="msg" name="msg" placeholder="Size, location, what you'd like to change, ideal timing"></textarea>
           </div>
-          <div><button class="btn" type="submit">Send enquiry</button></div>
+          <div><button class="btn" type="submit" id="submitBtn">Send enquiry</button></div>
           <p class="note" id="err" role="alert" hidden>Please add your name and a valid email so we can reply.</p>
+          <p class="note" id="sendErr" role="alert" hidden>Something went wrong sending this — please try again, or email us directly.</p>
           <div class="ok" id="ok" role="status"><strong>Enquiry sent</strong>Thank you. We'll be in touch within two working days.</div>
         </form>
       </div>

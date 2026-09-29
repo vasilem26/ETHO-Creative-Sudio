@@ -1,7 +1,9 @@
 (function(){
   var form = document.getElementById("form");
   var err = document.getElementById("err");
+  var sendErr = document.getElementById("sendErr");
   var ok = document.getElementById("ok");
+  var submitBtn = document.getElementById("submitBtn");
   if(form){
     form.addEventListener("submit", function(e){
       e.preventDefault();
@@ -10,9 +12,29 @@
       var valid = name && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
       err.hidden = !!valid;
       if(!valid){ return; }
-      /* Connect this to a backend or a form service (e.g. Formspree) to receive enquiries by email. */
-      ok.classList.add("show");
-      form.reset();
+
+      sendErr.hidden = true;
+      var originalLabel = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending…";
+
+      fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { "Accept": "application/json" }
+      }).then(function(response){
+        if(response.ok){
+          ok.classList.add("show");
+          form.reset();
+        } else {
+          sendErr.hidden = false;
+        }
+      }).catch(function(){
+        sendErr.hidden = false;
+      }).finally(function(){
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalLabel;
+      });
     });
   }
   var yr = document.getElementById("yr");

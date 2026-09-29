@@ -64,6 +64,8 @@ header.site{
 .btn:hover{background:transparent;color:var(--ink);border-color:var(--ink)}
 .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
 .btn.ghost:hover{border-color:var(--ink)}
+.btn:disabled{opacity:.6;cursor:default}
+.btn:disabled:hover{background:var(--cherry);color:var(--butter)}
 .btn.small{padding:10px 20px;font-size:.85rem}
 .nav .btn{padding:11px 22px;font-size:.85rem}
 .nav ul{gap:26px}
