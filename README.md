@@ -1,11 +1,13 @@
-# ETHO Creative Studio website (v1.8)
+# ETHO Creative Studio website (v2.2)
 
 First full version of the site: home page with studio intro, services, projects, process, a testimonial and a contact form.
 
 ## Structure
 
 ```
-index.html        Page markup
+index.html        Landing page: choose Interior design or IT and dev
+design.html       Interior design site
+it.html           IT and development site, dark layout (the clients section is hidden until real names are added)
 css/style.css      Styles, colour tokens (Cherry Red, Columbia Blue, Butter Yellow, Dark Chocolate) and dark mode
 js/main.js         Contact form validation
 favicon.svg        Browser-tab icon (E mark)
