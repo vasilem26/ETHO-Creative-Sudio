@@ -81,3 +81,39 @@
     });
   }
 })();
+
+(function(){
+  var grid=document.getElementById("projGrid");
+  if(!grid){ return; }
+  var tiles=[].slice.call(grid.querySelectorAll(".tile"));
+  var lb=document.createElement("div");
+  lb.className="lb"; lb.hidden=true;
+  lb.setAttribute("role","dialog"); lb.setAttribute("aria-modal","true"); lb.setAttribute("aria-label","Photo viewer");
+  lb.innerHTML='<button class="lb-x" type="button" aria-label="Close">&times;</button><button class="lb-prev" type="button" aria-label="Previous photo">&lsaquo;</button><figure><img alt=""><figcaption></figcaption></figure><button class="lb-next" type="button" aria-label="Next photo">&rsaquo;</button>';
+  document.body.appendChild(lb);
+  var img=lb.querySelector("img"), cap=lb.querySelector("figcaption"), cur=0, startX=0;
+  function show(i){
+    cur=(i+tiles.length)%tiles.length;
+    var t=tiles[cur], im=t.querySelector("img");
+    img.src=im.getAttribute("src"); img.alt=im.alt;
+    cap.textContent=t.querySelector("h3").textContent;
+  }
+  function open(i){ show(i); lb.hidden=false; document.body.style.overflow="hidden"; lb.querySelector(".lb-x").focus(); }
+  function close(){ lb.hidden=true; document.body.style.overflow=""; }
+  tiles.forEach(function(t,i){ t.addEventListener("click",function(e){ e.preventDefault(); open(i); }); });
+  lb.addEventListener("click",function(e){ if(e.target===lb||e.target.tagName==="FIGURE"){ close(); } });
+  lb.querySelector(".lb-x").addEventListener("click",close);
+  lb.querySelector(".lb-prev").addEventListener("click",function(){ show(cur-1); });
+  lb.querySelector(".lb-next").addEventListener("click",function(){ show(cur+1); });
+  document.addEventListener("keydown",function(e){
+    if(lb.hidden){ return; }
+    if(e.key==="Escape"){ close(); }
+    if(e.key==="ArrowLeft"){ show(cur-1); }
+    if(e.key==="ArrowRight"){ show(cur+1); }
+  });
+  lb.addEventListener("touchstart",function(e){ startX=e.changedTouches[0].clientX; },{passive:true});
+  lb.addEventListener("touchend",function(e){
+    var dx=e.changedTouches[0].clientX-startX;
+    if(Math.abs(dx)>50){ show(cur+(dx<0?1:-1)); }
+  },{passive:true});
+})();
