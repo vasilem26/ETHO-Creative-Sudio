@@ -114,6 +114,8 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
   .lbl{display:none}
 }
 
+.row .pos{display:inline-block;margin-top:6px;margin-right:16px;font:inherit;font-size:.8rem;font-weight:600;color:var(--accent);background:none;border:0;padding:6px 0;cursor:pointer}
+.maphead .linkbtn{height:auto;padding:0;border:0;border-radius:0;background:none;font-weight:600;font-size:inherit;color:var(--accent);text-decoration:underline;cursor:pointer;white-space:normal;text-align:left}
 .row .edit{display:inline-block;margin-top:6px;margin-right:16px;font:inherit;font-size:.8rem;font-weight:600;color:var(--accent);background:none;border:0;padding:6px 0;cursor:pointer}
 .row .del{display:inline-block;margin-top:6px;font:inherit;font-size:.8rem;font-weight:600;color:#c0392b;background:none;border:0;padding:6px 0;cursor:pointer}
 .row.flash{animation:flash 1.4s ease}
@@ -262,7 +264,7 @@ const CARTO_KEY = "cb1_4luc_1_c40b193c2d7fa1e42a42d02d";
 const GEO_SEED = {"1|Calea Dorobanților 102":[46.7770664,23.6188292],"2|Calea Dorobanților 70":[46.7729807,23.60715],"3|Mărăști":[46.7804568,23.6125126],"4|Strada Fabricii 1":[46.7793959,23.614001],"5|Strada Târnavelor":[46.7794494,23.6286294],"6|Strada Dionisie Roman 18":[46.7791091,23.6362103],"7|Strada Unirii 1A":[46.7689441,23.6198029],"8|Strada Take Ionescu 4":[46.7669487,23.6191406],"9|Aleea Rășinari 1A":[46.7620023,23.615094],"10|Strada Puieților":[46.7923724,23.5983312],"11|Bulevardul Muncii 8":[46.7980054,23.6113503],"12|Calea Traian Vuia 89":[46.7853156,23.6530779],"13|Piața Avram Iancu":[46.7717052,23.5964539],"14|Bulevardul Eroilor 22-24":[46.7699652,23.593392],"15|Strada Bisericii Ortodoxe 10":[46.7655987,23.5892217],"16|Strada Horea":[46.7743183,23.5876062],"17|Strada Republicii":[46.7606304,23.591046],"18|Calea Moților 25":[46.7672801,23.5826417],"19|Strada Primăverii":[46.7541024,23.5522443],"20|Strada Govora 19":[46.7595393,23.5668648],"21|Strada Govora 17":[46.7576241,23.5665784],"22|Strada Plopilor 46":[46.763921,23.5632074],"23|Strada Porțile de Fier":[46.7620848,23.5547091],"24|Strada Corneliu Coposu 34":[46.7875138,23.5763433],"25|Strada Donath 120-122":[46.7704444,23.5502585],"26|Strada Fântânele 30A":[46.7671283,23.548092],"27|Strada Rarău":[46.7744701,23.5643188],"28|Calea Baciului 22":[46.7844193,23.5562123],"29|Strada Gruia":[46.7789916,23.5792727],"30|Strada Meteor":[46.7544595,23.5898467],"31|Strada Viilor 33":[46.7546288,23.5840659],"32|Strada Observatorului":[46.754357,23.5836562],"33|Strada Galaxiei 6":[46.7601847,23.6074326],"34|Strada Făgetului 26":[46.7331965,23.5871613],"35|Strada Câmpului 305":[46.7519242,23.5651558],"36|Strada Vasile Conta":[46.7518407,23.605031],"37|Strada Borhanciului":[46.7519436,23.6362167],"38|Colonia Sopor":[46.7414237,23.6614259],"39|Strada Zăvoiului":[46.751535,23.6212796],"40|Strada Dâmboviței":[46.7802849,23.6199834],"41|Strada Arțarului 7-11":[46.7535325,23.6134419],"42|Strada Pomet":[46.81407,23.6155379],"43|Strada Eugen Ionesco 47, bloc C1":[46.746342,23.586544],"44|Pata Rât":[46.7741712,23.6897147]};
 
 const DATA = [{"n": 1, "z": "Mărăști", "b": "Sf. Apostol Toma", "a": "Calea Dorobanților 102", "p": "De la 7:00 (L–V până la 12:00, sâmbătă până la 19:00)", "t": "0740 849 370", "o": "Da"}, {"n": 2, "z": "Mărăști", "b": "Înălțarea Domnului", "a": "Calea Dorobanților 70", "p": "7:00–19:00 zilnic", "t": "", "o": "Da"}, {"n": 3, "z": "Mărăști", "b": "Întâmpinarea Domnului", "a": "Mărăști (vis-à-vis de blocul Farmec), fără număr", "p": "De la 8:00 (duminică 9:00); luni până la 10:30", "t": "0752 202 110", "o": "Parțial"}, {"n": 4, "z": "Mărăști", "b": "Sf. Ioan Botezătorul", "a": "Str. Fabricii 1", "p": "L–S 8:00–10:00; duminică 9:00–12:30", "t": "0745 398 107", "o": "Parțial"}, {"n": 5, "z": "Mărăști", "b": "Sf. Ilie", "a": "Str. Târnavelor (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 6, "z": "Mărăști", "b": "Sf. Ștefan", "a": "Str. Dionisie Roman 18", "p": "Neafișat", "t": "0741 155 489", "o": "Necunoscut"}, {"n": 7, "z": "Gheorgheni", "b": "Sf. Dimitrie cel Nou", "a": "Str. Unirii 1A", "p": "8:00–20:00 (duminică de la 9:00)", "t": "0757 032 973", "o": "Parțial"}, {"n": 8, "z": "Gheorgheni", "b": "Sf. Dimitrie", "a": "Str. Take Ionescu 4", "p": "L–S 8:00–9:00; duminică de la 9:45", "t": "", "o": "Parțial"}, {"n": 9, "z": "Gheorgheni", "b": "Nașterea Domnului", "a": "Aleea Rășinari 1A", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 10, "z": "Iris", "b": "Buna Vestire", "a": "Str. Puieților (fără număr)", "p": "8:00–20:00 zilnic", "t": "", "o": "Parțial"}, {"n": 11, "z": "Iris", "b": "Sf. Ierarh Alexandru", "a": "Bd. Muncii 8", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 12, "z": "Someșeni", "b": "Nașterea Maicii Domnului", "a": "Calea Traian Vuia 89", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 13, "z": "Centru", "b": "Catedrala Mitropolitană", "a": "Piața Avram Iancu", "p": "6:00–21:00 (duminică de la 7:00)", "t": "0264 431 004", "o": "Da"}, {"n": 14, "z": "Centru", "b": "Schimbarea la Față", "a": "Bd. Eroilor 22-24", "p": "L–V de la 7:00, sâmbătă și duminică de la 8:30, până la 19:00", "t": "", "o": "Da"}, {"n": 15, "z": "Centru", "b": "Sf. Treime", "a": "Str. Bisericii Ortodoxe 10", "p": "8:00–18:00 (duminică 9:00–13:00)", "t": "0743 075 672", "o": "Parțial"}, {"n": 16, "z": "Centru", "b": "Sf. Nicolae", "a": "Str. Horea (fără număr)", "p": "Neafișat", "t": "0746 047 871", "o": "Necunoscut"}, {"n": 17, "z": "Centru", "b": "Sf. Dimitrie Izvorâtorul de Mir", "a": "Str. Republicii (lângă Institutul Oncologic), fără număr", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 18, "z": "Centru", "b": "Sf. Constantin și Elena", "a": "Calea Moților 25", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 19, "z": "Mănăștur", "b": "Sf. Petru și Pavel", "a": "Str. Primăverii (fără număr)", "p": "6:30–19:30 zilnic", "t": "", "o": "Da"}, {"n": 20, "z": "Mănăștur", "b": "Adormirea Maicii Domnului", "a": "Str. Govora 19", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 21, "z": "Mănăștur", "b": "Capela Veche Mănăștur", "a": "Str. Govora 17", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 22, "z": "Mănăștur", "b": "Înălțarea Sfintei Cruci", "a": "Str. Plopilor 46", "p": "Neafișat", "t": "0721 857 168", "o": "Necunoscut"}, {"n": 23, "z": "Mănăștur", "b": "Sf. Ioan Gură de Aur", "a": "Str. Porțile de Fier (fără număr)", "p": "Neafișat", "t": "0264 571 943", "o": "Necunoscut"}, {"n": 24, "z": "Mănăștur", "b": "Sf. Arhangheli Mihail și Gavriil", "a": "Str. Corneliu Coposu 34", "p": "7:00–19:00 (vineri până la 20:00; duminică de la 8:00)", "t": "0744 779 169", "o": "Da"}, {"n": 25, "z": "Grigorescu", "b": "Sf. Gheorghe", "a": "Str. Donath 120-122", "p": "7:00–19:00 (duminică de la 8:00)", "t": "0755 060 773", "o": "Da"}, {"n": 26, "z": "Grigorescu", "b": "Pogorârea Sf. Duh", "a": "Str. Fântânele 30A", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 27, "z": "Grigorescu", "b": "Sf. Petru și Pavel", "a": "Str. Rarău (fără număr)", "p": "Neafișat", "t": "0744 771 025", "o": "Necunoscut"}, {"n": 28, "z": "Grigorescu", "b": "Vovidenia (Intrarea în Biserică)", "a": "Calea Baciului 22 (pagina parohiei: nr. 20)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 29, "z": "Gruia", "b": "Sf. Gheorghe", "a": "Str. Gruia (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 30, "z": "Zorilor", "b": "Pogorârea Sf. Duh", "a": "Str. Meteor (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 31, "z": "Zorilor", "b": "Învierea Domnului", "a": "Str. Viilor 33", "p": "Neafișat", "t": "0264 438 407", "o": "Necunoscut"}, {"n": 32, "z": "Zorilor", "b": "Sf. Paraschiva", "a": "Str. Observatorului (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 33, "z": "Zorilor", "b": "Sf. Apostol Andrei", "a": "Str. Galaxiei 6", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 34, "z": "Făget", "b": "Soborul Maicii Domnului", "a": "Str. Făgetului 26", "p": "Neafișat", "t": "0749 184 968", "o": "Necunoscut"}, {"n": 35, "z": "Mănăștur", "b": "Sf. Mucenici Brâncoveni (biserică de lemn)", "a": "Str. Câmpului 305", "p": "Neafișat", "t": "0740 172 388", "o": "Necunoscut"}, {"n": 36, "z": "Buna Ziua", "b": "Sf. Mucenic Mina", "a": "Str. Vasile Conta (fără număr)", "p": "Neafișat", "t": "0745 425 859", "o": "Necunoscut"}, {"n": 37, "z": "Borhanci", "b": "Sf. Ioan Botezătorul", "a": "Str. Borhanciului (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 38, "z": "Sopor", "b": "Sf. Antonie cel Mare", "a": "Colonia Sopor (fără adresă exactă)", "p": "Neafișat", "t": "0740 190 855", "o": "Necunoscut"}, {"n": 39, "z": "Buna Ziua / Zorilor", "b": "Capela Sf. Iustin Martirul și Filosoful", "a": "Str. Zăvoiului (fără număr)", "p": "Deschisă 24 de ore (conform Google, neconfirmat)", "t": "", "o": "Da"}, {"n": 40, "z": "Mărăști / Gheorgheni", "b": "Sf. Mihail Arhanghel", "a": "Str. Dâmboviței (fără număr)", "p": "Program eronat în Google (1:09–3:59 noaptea) – de verificat", "t": "", "o": "Necunoscut"}, {"n": 41, "z": "Zorilor", "b": "Mănăstirea Sf. Elisabeta", "a": "Str. Arțarului 7-11", "p": "Neafișat", "t": "0264 535 535", "o": "Necunoscut"}, {"n": 42, "z": "Pomet", "b": "Sf. Lazăr (biserică de lemn)", "a": "Str. Pomet (fără număr)", "p": "Neverificat", "t": "", "o": "Necunoscut"}, {"n": 43, "z": "Europa", "b": "Sf. Ioan Botezătorul (capelă în bloc)", "a": "Str. Eugen Ionesco 47, bloc C1", "p": "Neverificat", "t": "", "o": "Necunoscut"}, {"n": 44, "z": "Pata Rât", "b": "Sf. Moise Arapul (biserică de lemn)", "a": "Pata Rât (lângă rampa de gunoi)", "p": "Neverificat", "t": "", "o": "Necunoscut"}, {"n": 45, "z": "Mănăștur", "b": "Tuturor Sfinților", "a": "Str. Ciucaș (fără număr)", "p": "Neverificat", "t": "", "o": "Necunoscut"}, {"n": 46, "z": "Mănăștur", "b": "Sf. Apostol și Evanghelist Matei", "a": "Str. Mehedinți 41", "p": "Neverificat", "t": "", "o": "Necunoscut"}, {"n": 47, "z": "Mărăști", "b": "Sf. Vasile cel Mare", "a": "Str. Barbu Patriciu (fără număr)", "p": "Neverificat", "t": "", "o": "Necunoscut"}, {"n": 48, "z": "Mărăști", "b": "Sf. Ioachim și Ana (biserică de lemn)", "a": "Str. Câmpul Pâinii 49", "p": "Neverificat", "t": "0746 016 669", "o": "Necunoscut"}];
-const LS_CHECKS = "afise-cluj-checks-v1", LS_PENDING = "afise-cluj-pending-v1", LS_CUSTOM = "afise-cluj-custom-v1", LS_PENDING_P = "afise-cluj-pending-places-v1";
+const LS_CHECKS = "afise-cluj-checks-v1", LS_PENDING = "afise-cluj-pending-v1", LS_CUSTOM = "afise-cluj-custom-v1", LS_PENDING_P = "afise-cluj-pending-places-v1", LS_FIXES = "afise-cluj-fixes-v1", LS_PENDING_F = "afise-cluj-pending-fixes-v1";
 const DB = (DB_URL || "").replace(/\/+$/, "");
 
 const $ = id => document.getElementById(id);
@@ -276,6 +278,8 @@ let pending = lsGet(LS_PENDING, {});   // { "12": timestamp | null } – de trim
 let custom = lsGet(LS_CUSTOM, []);     // locații adăugate: {id, b, a, z, t, pos, g, gk, ts} (copie locală a celor din Firebase)
 let pendingP = lsGet(LS_PENDING_P, {}); // { id: loc | null } – locații de trimis la server
 let rulesDenied = false;
+let fixes = lsGet(LS_FIXES, {});         // poziții setate manual pentru locațiile din listă: { nr: [lat,lng] }
+let pendingF = lsGet(LS_PENDING_F, {}); // { nr: {lat,lng} | null } – de trimis la server
 let filter = "all", zoneSel = "", query = "";
 
 const isLocalKey = k => String(k)[0] === "x";
@@ -300,6 +304,8 @@ function buildRow(it) {
   if (it.local) {
     const ed = el("button", "edit", "Editează"); ed.type = "button";
     const d = el("button", "del", "Șterge"); d.type = "button"; bis.append(ed, d);
+  } else {
+    const pb = el("button", "pos", "Poziție pe hartă"); pb.type = "button"; bis.append(pb);
   }
   const adr = el("div", "adr");
   if (r.a) {
@@ -410,6 +416,17 @@ function removePlace(c) {
   }
   updateAll();
 }
+function setFix(k, p) {
+  if (p) fixes[k] = p; else delete fixes[k];
+  lsSet(LS_FIXES, fixes);
+  if (DB) { pendingF[k] = p ? { lat: p[0], lng: p[1] } : null; lsSet(LS_PENDING_F, pendingF); setStatus("saving"); flush(); }
+}
+function rebuildFixes(fd) {
+  const f = {};
+  for (const k of Object.keys(fd)) { const v = fd[k]; if (v && num(v.lat) && num(v.lng)) f[k] = [v.lat, v.lng]; }
+  for (const k in pendingF) { if (pendingF[k] === null) delete f[k]; else f[k] = [pendingF[k].lat, pendingF[k].lng]; }
+  fixes = f; lsSet(LS_FIXES, fixes);
+}
 function rebuildCustom(pd) {
   const arr = Object.keys(pd).filter(id => pd[id] && typeof pd[id].b === "string").map(id => fromPlace(id, pd[id]));
   for (const id in pendingP) {
@@ -435,7 +452,7 @@ function migrateLocal() {
 
 /* ---------- Firebase REST ---------- */
 let flushing = false;
-const hasPending = () => Object.keys(pending).length > 0 || Object.keys(pendingP).length > 0;
+const hasPending = () => Object.keys(pending).length > 0 || Object.keys(pendingP).length > 0 || Object.keys(pendingF).length > 0;
 const isRulesErr = e => !!e && (e.status === 401 || e.status === 403);
 async function send(path, v) {
   const r = await fetch(DB + path + ".json", { method: v == null ? "DELETE" : "PUT", body: v == null ? undefined : JSON.stringify(v) });
@@ -451,20 +468,25 @@ async function drain(map, base, key) {
 }
 async function flush() {
   if (!DB || flushing) return;
-  flushing = true; let status = "ok";
+  flushing = true; let status = "ok", denied = false;
   try {
-    do {
-      try { await drain(pending, "/posters/", LS_PENDING); } catch (e) { status = isRulesErr(e) ? "rules" : "offline"; break; }
-      try { await drain(pendingP, "/places/", LS_PENDING_P); rulesDenied = false; }
-      catch (e) { if (isRulesErr(e)) { rulesDenied = true; status = "rules"; } else status = "offline"; break; }
-    } while (hasPending());
+    outer: do {
+      for (const [m, base, key] of [[pending, "/posters/", LS_PENDING], [pendingP, "/places/", LS_PENDING_P], [pendingF, "/fixes/", LS_PENDING_F]]) {
+        try { await drain(m, base, key); }
+        catch (e) {
+          if (isRulesErr(e)) { denied = true; status = "rules"; }
+          else { status = "offline"; break outer; }
+        }
+      }
+    } while (!denied && hasPending());
   } finally { flushing = false; }
+  rulesDenied = denied;
   setStatus(status);
 }
 async function pull() {
   if (!DB) return;
   try {
-    const [r1, r2] = await Promise.all([fetch(DB + "/posters.json", { cache: "no-store" }), fetch(DB + "/places.json", { cache: "no-store" })]);
+    const [r1, r2, r3] = await Promise.all([fetch(DB + "/posters.json", { cache: "no-store" }), fetch(DB + "/places.json", { cache: "no-store" }), fetch(DB + "/fixes.json", { cache: "no-store" })]);
     if (!r1.ok) { const e = new Error("http " + r1.status); e.status = r1.status; throw e; }
     const d = (await r1.json()) || {};
     const next = {};
@@ -472,9 +494,14 @@ async function pull() {
     for (const k in pending) { if (pending[k] == null) delete next[k]; else next[k] = pending[k]; }
     for (const k in checks) if (isLocalKey(k)) next[k] = checks[k];
     checks = next; lsSet(LS_CHECKS, checks);
-    if (r2.ok) { rulesDenied = false; rebuildCustom((await r2.json()) || {}); }
-    else if (r2.status === 401 || r2.status === 403) rulesDenied = true;
+    let denied = false;
+    if (r2.ok) rebuildCustom((await r2.json()) || {});
+    else if (r2.status === 401 || r2.status === 403) denied = true;
     else throw new Error("http " + r2.status);
+    if (r3.ok) rebuildFixes((await r3.json()) || {});
+    else if (r3.status === 401 || r3.status === 403) denied = true;
+    else throw new Error("http " + r3.status);
+    rulesDenied = denied;
     updateAll();
     setStatus(rulesDenied ? "rules" : hasPending() ? "saving" : "ok");
   } catch (e) { setStatus(isRulesErr(e) ? "rules" : "offline"); }
@@ -506,6 +533,7 @@ list.addEventListener("click", e => {
   if (e.target.closest("a")) return;
   const li = e.target.closest(".row"); if (!li) return;
   const k = li.dataset.k;
+  if (e.target.closest(".pos")) { openPosSheet(allRows().find(i => i.k === k)); return; }
   if (e.target.closest(".edit")) { const c = custom.find(x => x.id === k); if (c) openSheet(c); return; }
   if (e.target.closest(".del")) {
     const c = custom.find(x => x.id === k);
@@ -532,7 +560,27 @@ zoneSelect.addEventListener("change", () => { zoneSel = zoneSelect.value; applyF
 
 /* ---------- adăugare locație (locală) ---------- */
 const overlay = $("overlay");
-let editId = null;
+let editId = null, posKey = null;
+const posErr = txt => /goo\.gl|maps\.app/i.test(txt)
+  ? "Linkul scurt nu conține coordonatele. Deschide-l în Google Maps și copiază coordonatele sau linkul complet din bara browserului."
+  : "Nu am înțeles poziția. Lipește coordonate (ex. 46.7712, 23.5897) sau un link Google Maps complet.";
+function setSheetMode(posOnly) {
+  const keep = new Set(["sheetTitle", "sheetNote", "fPos", "fErr"]);
+  [...$("sheet").children].forEach(c => {
+    const k = keep.has(c.id) || (c.tagName === "LABEL" && c.htmlFor === "fPos") || c.classList.contains("hint") || c.classList.contains("btns");
+    c.style.display = posOnly && !k ? "none" : "";
+  });
+}
+function openPosSheet(it) {
+  if (!it) return;
+  if (it.local) { openSheet(custom.find(c => c.id === it.k)); return; }
+  $("sheet").reset(); $("fErr").textContent = ""; editId = null; posKey = it.k;
+  $("sheetTitle").textContent = "Poziție pe hartă";
+  $("sheetNote").textContent = it.r.b + (it.r.a ? " — " + it.r.a : "") + (DB ? ". Poziția se salvează pentru toți." : "");
+  $("fGo").textContent = "Salvează";
+  $("fPos").value = fixes[it.k] ? fixes[it.k][0] + ", " + fixes[it.k][1] : "";
+  setSheetMode(true); overlay.classList.add("open"); setTimeout(() => $("fPos").focus(), 50);
+}
 function parseCoords(s) {
   s = (s || "").trim(); if (!s) return null;
   const ok = (a, b) => (a >= -90 && a <= 90 && b >= -180 && b <= 180) ? [a, b] : null;
@@ -545,29 +593,34 @@ function parseCoords(s) {
   return null;
 }
 function openSheet(c) {
-  $("sheet").reset(); $("fErr").textContent = ""; editId = c ? c.id : null;
+  $("sheet").reset(); $("fErr").textContent = ""; editId = c ? c.id : null; posKey = null; setSheetMode(false);
   $("sheetTitle").textContent = c ? "Editează locația" : "Adaugă o locație";
   $("sheetNote").textContent = DB ? "Locația apare pentru toți cei care folosesc pagina." : "Se salvează doar pe acest telefon și o vezi doar tu.";
   $("fGo").textContent = c ? "Salvează" : "Adaugă";
   if (c) { $("fName").value = c.b; $("fAddr").value = c.a || ""; $("fZone").value = c.z || ""; $("fTel").value = c.t || ""; $("fPos").value = c.pos ? c.pos[0] + ", " + c.pos[1] : ""; }
   overlay.classList.add("open"); setTimeout(() => $("fName").focus(), 50);
 }
-function closeSheet() { overlay.classList.remove("open"); }
+function closeSheet() { overlay.classList.remove("open"); posKey = null; }
 $("fab").addEventListener("click", () => openSheet());
 $("fCancel").addEventListener("click", closeSheet);
 overlay.addEventListener("click", e => { if (e.target === overlay) closeSheet(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
 $("sheet").addEventListener("submit", e => {
   e.preventDefault();
+  if (posKey) {
+    const key = posKey, txt = $("fPos").value.trim(); let p = null;
+    if (txt) { p = parseCoords(txt); if (!p) { $("fErr").textContent = posErr(txt); $("fPos").focus(); return; } }
+    setFix(key, p); closeSheet(); updateAll();
+    showToast(p ? "Poziție salvată" : "Poziție ștearsă", false);
+    return;
+  }
   const b = $("fName").value.trim();
   if (!b) { $("fErr").textContent = "Scrie numele bisericii sau al locației."; $("fName").focus(); return; }
   const posTxt = $("fPos").value.trim(); let pos = null;
   if (posTxt) {
     pos = parseCoords(posTxt);
     if (!pos) {
-      $("fErr").textContent = /goo\.gl|maps\.app/i.test(posTxt)
-        ? "Linkul scurt nu conține coordonatele. Deschide-l în Google Maps și copiază coordonatele sau linkul complet din bara browserului."
-        : "Nu am înțeles poziția. Lipește coordonate (ex. 46.7712, 23.5897) sau un link Google Maps complet.";
+      $("fErr").textContent = posErr(posTxt);
       $("fPos").focus(); return;
     }
   }
@@ -605,6 +658,7 @@ function cleanAddr(a) {
 }
 const geoKey = it => it.k + "|" + cleanAddr(it.r.a);
 function posOf(it) {                       // [lat,lng] | 0 (negăsit) | undefined (încă necăutat)
+  if (fixes[it.k]) return fixes[it.k];
   if (it.pos) return it.pos;
   if (it.g && it.gk === cleanAddr(it.r.a)) return it.g;
   return geo[geoKey(it)];
@@ -682,7 +736,7 @@ function refreshMarkers() {
     let m = markers[it.k];
     if (p && !m) { addMarker(it, p); m = markers[it.k]; }
     else if (!p && m) { m.remove(); delete markers[it.k]; m = null; }
-    else if (p && m && it.local) m.setLatLng(p);
+    else if (p && m) m.setLatLng(p);
     if (m) { m.setIcon(iconFor(!!checks[it.k])); m.setPopupContent(popupFor(it)); }
   });
   if (!geoRunning && !geoError && items.some(needsGeo)) runGeo();
@@ -692,7 +746,16 @@ function updateMapInfo() {
   const items = allRows(), placed = Object.keys(markers).length;
   const missing = items.filter(it => posOf(it) === 0);
   $("mapInfo").textContent = placed + " din " + items.length + " pe hartă" + (geoRunning ? " · se caută pozițiile…" : "");
-  $("mapMiss").textContent = missing.length && !geoRunning ? "Fără poziție: " + missing.map(i => i.r.b).join(", ") + " — în listă apasă Editează și adaugă coordonatele" : "";
+  const miss = $("mapMiss"); miss.textContent = "";
+  if (missing.length && !geoRunning) {
+    miss.append("Fără poziție: ");
+    missing.forEach((it, i) => {
+      const b = el("button", "linkbtn", it.r.b); b.type = "button";
+      b.onclick = () => { $("mapClose").click(); setTimeout(() => openPosSheet(it), 250); };
+      miss.append(b); if (i < missing.length - 1) miss.append(", ");
+    });
+    miss.append(" — atinge numele ca să adaugi coordonatele");
+  }
   $("mapRetry").hidden = !geoError;
   if (geoError) $("mapInfo").textContent += " · căutarea s-a oprit (conexiune?)";
 }
