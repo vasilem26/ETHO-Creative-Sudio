@@ -50,6 +50,7 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
 .pill{font-size:.75rem;padding:3px 9px;border-radius:99px;background:var(--gray-bg);color:var(--gray-text);white-space:nowrap}
 .pill.ok{background:var(--green-bg);color:var(--green-text)}
 .pill.saving{background:var(--amber-bg);color:var(--amber-text)}
+.pill.rules{background:var(--amber-bg);color:var(--amber-text)}
 .pill.offline{background:var(--amber-bg);color:var(--amber-text)}
 .bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--green);transition:width .3s}
@@ -76,8 +77,8 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
 .zona{font-size:.78rem;font-weight:600;background:var(--gray-bg);color:var(--gray-text);padding:2px 8px;border-radius:99px}
 .open{font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:99px}
 .open.da{background:var(--green-bg);color:var(--green-text)}
-.open.parțial{background:var(--amber-bg);color:var(--amber-text)}
-.open.necunoscut{background:var(--gray-bg);color:var(--gray-text)}
+.open.partial{background:var(--amber-bg);color:var(--amber-text)}
+.open.necunoscut,.open.adaugata{background:var(--gray-bg);color:var(--gray-text)}
 .row.done .zona,.row.done .open.necunoscut{background:rgba(0,0,0,.07)}
 .bis{grid-area:bis;font-size:1.08rem;font-weight:700;line-height:1.25}
 .bis .when{display:block;font-size:.78rem;font-weight:500;color:var(--green-text);margin-top:2px}
@@ -113,6 +114,7 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
   .lbl{display:none}
 }
 
+.row .edit{display:inline-block;margin-top:6px;margin-right:16px;font:inherit;font-size:.8rem;font-weight:600;color:var(--accent);background:none;border:0;padding:6px 0;cursor:pointer}
 .row .del{display:inline-block;margin-top:6px;font:inherit;font-size:.8rem;font-weight:600;color:#c0392b;background:none;border:0;padding:6px 0;cursor:pointer}
 .row.flash{animation:flash 1.4s ease}
 @keyframes flash{0%,60%{box-shadow:0 0 0 4px var(--green)}100%{box-shadow:var(--shadow)}}
@@ -131,6 +133,7 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
 .sheet .btns{display:flex;gap:10px;margin-top:16px}
 .sheet .btns button{flex:1;height:50px;border-radius:14px;font:inherit;font-weight:700;border:1px solid var(--line);background:var(--bg);color:var(--text);cursor:pointer}
 .sheet .btns button.go{background:var(--green);border-color:var(--green);color:#fff}
+.sheet .hint{display:block;color:var(--muted);font-size:.78rem;margin-top:4px;line-height:1.35}
 .sheet .err{color:#c0392b;font-size:.82rem;margin-top:6px;min-height:1em}
 @media (min-width:880px){.overlay{align-items:center}.sheet{border-radius:20px}}
 
@@ -225,19 +228,22 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
 <button class="fab" id="fab" type="button"><span class="plus"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Adaugă locație</button>
 <div class="overlay" id="overlay">
   <form class="sheet" id="sheet" autocomplete="off" novalidate>
-    <h2>Adaugă o locație</h2>
-    <p>Se salvează doar pe acest telefon și o vezi doar tu.</p>
+    <h2 id="sheetTitle">Adaugă o locație</h2>
+    <p id="sheetNote"></p>
     <label for="fName">Biserică / locație *</label>
     <input id="fName" required placeholder="ex. Sf. Paraschiva">
     <label for="fAddr">Adresă (cu localitatea, dacă e în afara Clujului)</label>
     <input id="fAddr" placeholder="ex. Str. Avram Iancu 10, Florești">
+    <label for="fPos">Poziție exactă pe hartă (opțional)</label>
+    <input id="fPos" placeholder="ex. 46.7712, 23.5897 sau link Google Maps" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <small class="hint">Dacă adresa nu e găsită pe hartă: în Google Maps ține apăsat pe locație, copiază coordonatele și lipește-le aici. Merge și un link complet din bara browserului.</small>
     <label for="fZone">Zonă</label>
     <input id="fZone" list="zoneList" placeholder="ex. Zorilor">
     <datalist id="zoneList"></datalist>
     <label for="fTel">Telefon</label>
     <input id="fTel" type="tel" inputmode="tel" placeholder="07xx xxx xxx">
     <div class="err" id="fErr"></div>
-    <div class="btns"><button type="button" id="fCancel">Anulează</button><button type="submit" class="go">Adaugă</button></div>
+    <div class="btns"><button type="button" id="fCancel">Anulează</button><button type="submit" class="go" id="fGo">Adaugă</button></div>
   </form>
 </div>
 
@@ -256,7 +262,7 @@ const CARTO_KEY = "cb1_4luc_1_c40b193c2d7fa1e42a42d02d";
 const GEO_SEED = {"1|Calea Dorobanților 102":[46.7770664,23.6188292],"2|Calea Dorobanților 70":[46.7729807,23.60715],"3|Mărăști":[46.7804568,23.6125126],"4|Strada Fabricii 1":[46.7793959,23.614001],"5|Strada Târnavelor":[46.7794494,23.6286294],"6|Strada Dionisie Roman 18":[46.7791091,23.6362103],"7|Strada Unirii 1A":[46.7689441,23.6198029],"8|Strada Take Ionescu 4":[46.7669487,23.6191406],"9|Aleea Rășinari 1A":[46.7620023,23.615094],"10|Strada Puieților":[46.7923724,23.5983312],"11|Bulevardul Muncii 8":[46.7980054,23.6113503],"12|Calea Traian Vuia 89":[46.7853156,23.6530779],"13|Piața Avram Iancu":[46.7717052,23.5964539],"14|Bulevardul Eroilor 22-24":[46.7699652,23.593392],"15|Strada Bisericii Ortodoxe 10":[46.7655987,23.5892217],"16|Strada Horea":[46.7743183,23.5876062],"17|Strada Republicii":[46.7606304,23.591046],"18|Calea Moților 25":[46.7672801,23.5826417],"19|Strada Primăverii":[46.7541024,23.5522443],"20|Strada Govora 19":[46.7595393,23.5668648],"21|Strada Govora 17":[46.7576241,23.5665784],"22|Strada Plopilor 46":[46.763921,23.5632074],"23|Strada Porțile de Fier":[46.7620848,23.5547091],"24|Strada Corneliu Coposu 34":[46.7875138,23.5763433],"25|Strada Donath 120-122":[46.7704444,23.5502585],"26|Strada Fântânele 30A":[46.7671283,23.548092],"27|Strada Rarău":[46.7744701,23.5643188],"28|Calea Baciului 22":[46.7844193,23.5562123],"29|Strada Gruia":[46.7789916,23.5792727],"30|Strada Meteor":[46.7544595,23.5898467],"31|Strada Viilor 33":[46.7546288,23.5840659],"32|Strada Observatorului":[46.754357,23.5836562],"33|Strada Galaxiei 6":[46.7601847,23.6074326],"34|Strada Făgetului 26":[46.7331965,23.5871613],"35|Strada Câmpului 305":[46.7519242,23.5651558],"36|Strada Vasile Conta":[46.7518407,23.605031],"37|Strada Borhanciului":[46.7519436,23.6362167],"38|Colonia Sopor":[46.7414237,23.6614259],"39|Strada Zăvoiului":[46.751535,23.6212796],"40|Strada Dâmboviței":[46.7802849,23.6199834],"41|Strada Arțarului 7-11":[46.7535325,23.6134419],"42|Strada Pomet":[46.81407,23.6155379],"43|Strada Eugen Ionesco 47, bloc C1":[46.746342,23.586544],"44|Pata Rât":[46.7741712,23.6897147]};
 
 const DATA = [{"n": 1, "z": "Mărăști", "b": "Sf. Apostol Toma", "a": "Calea Dorobanților 102", "p": "De la 7:00 (L–V până la 12:00, sâmbătă până la 19:00)", "t": "0740 849 370", "o": "Da"}, {"n": 2, "z": "Mărăști", "b": "Înălțarea Domnului", "a": "Calea Dorobanților 70", "p": "7:00–19:00 zilnic", "t": "", "o": "Da"}, {"n": 3, "z": "Mărăști", "b": "Întâmpinarea Domnului", "a": "Mărăști (vis-à-vis de blocul Farmec), fără număr", "p": "De la 8:00 (duminică 9:00); luni până la 10:30", "t": "0752 202 110", "o": "Parțial"}, {"n": 4, "z": "Mărăști", "b": "Sf. Ioan Botezătorul", "a": "Str. Fabricii 1", "p": "L–S 8:00–10:00; duminică 9:00–12:30", "t": "0745 398 107", "o": "Parțial"}, {"n": 5, "z": "Mărăști", "b": "Sf. Ilie", "a": "Str. Târnavelor (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 6, "z": "Mărăști", "b": "Sf. Ștefan", "a": "Str. Dionisie Roman 18", "p": "Neafișat", "t": "0741 155 489", "o": "Necunoscut"}, {"n": 7, "z": "Gheorgheni", "b": "Sf. Dimitrie cel Nou", "a": "Str. Unirii 1A", "p": "8:00–20:00 (duminică de la 9:00)", "t": "0757 032 973", "o": "Parțial"}, {"n": 8, "z": "Gheorgheni", "b": "Sf. Dimitrie", "a": "Str. Take Ionescu 4", "p": "L–S 8:00–9:00; duminică de la 9:45", "t": "", "o": "Parțial"}, {"n": 9, "z": "Gheorgheni", "b": "Nașterea Domnului", "a": "Aleea Rășinari 1A", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 10, "z": "Iris", "b": "Buna Vestire", "a": "Str. Puieților (fără număr)", "p": "8:00–20:00 zilnic", "t": "", "o": "Parțial"}, {"n": 11, "z": "Iris", "b": "Sf. Ierarh Alexandru", "a": "Bd. Muncii 8", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 12, "z": "Someșeni", "b": "Nașterea Maicii Domnului", "a": "Calea Traian Vuia 89", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 13, "z": "Centru", "b": "Catedrala Mitropolitană", "a": "Piața Avram Iancu", "p": "6:00–21:00 (duminică de la 7:00)", "t": "0264 431 004", "o": "Da"}, {"n": 14, "z": "Centru", "b": "Schimbarea la Față", "a": "Bd. Eroilor 22-24", "p": "L–V de la 7:00, sâmbătă și duminică de la 8:30, până la 19:00", "t": "", "o": "Da"}, {"n": 15, "z": "Centru", "b": "Sf. Treime", "a": "Str. Bisericii Ortodoxe 10", "p": "8:00–18:00 (duminică 9:00–13:00)", "t": "0743 075 672", "o": "Parțial"}, {"n": 16, "z": "Centru", "b": "Sf. Nicolae", "a": "Str. Horea (fără număr)", "p": "Neafișat", "t": "0746 047 871", "o": "Necunoscut"}, {"n": 17, "z": "Centru", "b": "Sf. Dimitrie Izvorâtorul de Mir", "a": "Str. Republicii (lângă Institutul Oncologic), fără număr", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 18, "z": "Centru", "b": "Sf. Constantin și Elena", "a": "Calea Moților 25", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 19, "z": "Mănăștur", "b": "Sf. Petru și Pavel", "a": "Str. Primăverii (fără număr)", "p": "6:30–19:30 zilnic", "t": "", "o": "Da"}, {"n": 20, "z": "Mănăștur", "b": "Adormirea Maicii Domnului", "a": "Str. Govora 19", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 21, "z": "Mănăștur", "b": "Capela Veche Mănăștur", "a": "Str. Govora 17", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 22, "z": "Mănăștur", "b": "Înălțarea Sfintei Cruci", "a": "Str. Plopilor 46", "p": "Neafișat", "t": "0721 857 168", "o": "Necunoscut"}, {"n": 23, "z": "Mănăștur", "b": "Sf. Ioan Gură de Aur", "a": "Str. Porțile de Fier (fără număr)", "p": "Neafișat", "t": "0264 571 943", "o": "Necunoscut"}, {"n": 24, "z": "Mănăștur", "b": "Sf. Arhangheli Mihail și Gavriil", "a": "Str. Corneliu Coposu 34", "p": "7:00–19:00 (vineri până la 20:00; duminică de la 8:00)", "t": "0744 779 169", "o": "Da"}, {"n": 25, "z": "Grigorescu", "b": "Sf. Gheorghe", "a": "Str. Donath 120-122", "p": "7:00–19:00 (duminică de la 8:00)", "t": "0755 060 773", "o": "Da"}, {"n": 26, "z": "Grigorescu", "b": "Pogorârea Sf. Duh", "a": "Str. Fântânele 30A", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 27, "z": "Grigorescu", "b": "Sf. Petru și Pavel", "a": "Str. Rarău (fără număr)", "p": "Neafișat", "t": "0744 771 025", "o": "Necunoscut"}, {"n": 28, "z": "Grigorescu", "b": "Vovidenia (Intrarea în Biserică)", "a": "Calea Baciului 22 (pagina parohiei: nr. 20)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 29, "z": "Gruia", "b": "Sf. Gheorghe", "a": "Str. Gruia (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 30, "z": "Zorilor", "b": "Pogorârea Sf. Duh", "a": "Str. Meteor (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 31, "z": "Zorilor", "b": "Învierea Domnului", "a": "Str. Viilor 33", "p": "Neafișat", "t": "0264 438 407", "o": "Necunoscut"}, {"n": 32, "z": "Zorilor", "b": "Sf. Paraschiva", "a": "Str. Observatorului (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 33, "z": "Zorilor", "b": "Sf. Apostol Andrei", "a": "Str. Galaxiei 6", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 34, "z": "Făget", "b": "Soborul Maicii Domnului", "a": "Str. Făgetului 26", "p": "Neafișat", "t": "0749 184 968", "o": "Necunoscut"}, {"n": 35, "z": "Făget", "b": "Sf. Mucenici Brâncoveni (biserică de lemn)", "a": "Str. Câmpului 305", "p": "Neafișat", "t": "0740 172 388", "o": "Necunoscut"}, {"n": 36, "z": "Buna Ziua", "b": "Sf. Mucenic Mina", "a": "Str. Vasile Conta (fără număr)", "p": "Neafișat", "t": "0745 425 859", "o": "Necunoscut"}, {"n": 37, "z": "Borhanci", "b": "Sf. Ioan Botezătorul", "a": "Str. Borhanciului (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 38, "z": "Sopor", "b": "Sf. Antonie cel Mare", "a": "Colonia Sopor (fără adresă exactă)", "p": "Neafișat", "t": "0740 190 855", "o": "Necunoscut"}, {"n": 39, "z": "Buna Ziua / Zorilor", "b": "Capela Sf. Iustin Martirul și Filosoful", "a": "Str. Zăvoiului (fără număr)", "p": "Deschisă 24 de ore (conform Google, neconfirmat)", "t": "", "o": "Da"}, {"n": 40, "z": "Mărăști / Gheorgheni", "b": "Sf. Mihail Arhanghel", "a": "Str. Dâmboviței (fără număr)", "p": "Program eronat în Google (1:09–3:59 noaptea) – de verificat", "t": "", "o": "Necunoscut"}, {"n": 41, "z": "Zorilor", "b": "Mănăstirea Sf. Elisabeta", "a": "Str. Arțarului 7-11", "p": "Neafișat", "t": "0264 535 535", "o": "Necunoscut"}, {"n": 42, "z": "Pomet", "b": "Sf. Lazăr (biserică de lemn)", "a": "Str. Pomet (fără număr)", "p": "Neverificat", "t": "", "o": "Necunoscut"}, {"n": 43, "z": "Europa", "b": "Sf. Ioan Botezătorul (capelă în bloc)", "a": "Str. Eugen Ionesco 47, bloc C1", "p": "Neverificat", "t": "", "o": "Necunoscut"}, {"n": 44, "z": "Pata Rât", "b": "Sf. Moise Arapul (biserică de lemn)", "a": "Pata Rât (lângă rampa de gunoi)", "p": "Neverificat", "t": "", "o": "Necunoscut"}];
-const LS_CHECKS = "afise-cluj-checks-v1", LS_PENDING = "afise-cluj-pending-v1", LS_CUSTOM = "afise-cluj-custom-v1";
+const LS_CHECKS = "afise-cluj-checks-v1", LS_PENDING = "afise-cluj-pending-v1", LS_CUSTOM = "afise-cluj-custom-v1", LS_PENDING_P = "afise-cluj-pending-places-v1";
 const DB = (DB_URL || "").replace(/\/+$/, "");
 
 const $ = id => document.getElementById(id);
@@ -267,17 +273,20 @@ const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } ca
 
 let checks = lsGet(LS_CHECKS, {});     // { "12": timestamp }  (cheile care încep cu "x" = locații locale)
 let pending = lsGet(LS_PENDING, {});   // { "12": timestamp | null } – de trimis la server
-let custom = lsGet(LS_CUSTOM, []);     // locații adăugate local: {id, b, a, z, t}
+let custom = lsGet(LS_CUSTOM, []);     // locații adăugate: {id, b, a, z, t, pos, g, gk, ts} (copie locală a celor din Firebase)
+let pendingP = lsGet(LS_PENDING_P, {}); // { id: loc | null } – locații de trimis la server
+let rulesDenied = false;
 let filter = "all", zoneSel = "", query = "";
 
 const isLocalKey = k => String(k)[0] === "x";
 const zonesOf = z => z.split("/").map(s => s.trim()).filter(Boolean);
 const allRows = () => DATA.map(r => ({ k: String(r.n), label: "#" + r.n, r, local: false }))
-  .concat(custom.map((c, i) => ({ k: c.id, label: "+" + (i + 1), r: { b: c.b, a: c.a, z: c.z || "Altele", t: c.t || "", p: "", o: "Local" }, local: true })));
+  .concat(custom.map((c, i) => ({ k: c.id, label: "+" + (i + 1), r: { b: c.b, a: c.a, z: c.z || "Altele", t: c.t || "", p: "", o: "Adăugată" }, local: true, pos: c.pos || null, g: c.g || null, gk: c.gk || "" })));
 
 /* ---------- construire listă ---------- */
 const list = $("list"), rowEls = {};
 
+const sigOf = it => JSON.stringify([it.r.b, it.r.a, it.r.z, it.r.t, it.pos]);
 function buildRow(it) {
   const { r, k } = it;
   const li = el("li", "row"); li.dataset.k = k;
@@ -288,7 +297,10 @@ function buildRow(it) {
   meta.append(el("span", "open " + norm(r.o), r.o));
   const bis = el("div", "bis"); bis.append(document.createTextNode(r.b));
   const when = el("span", "when"); bis.append(when);
-  if (it.local) { const d = el("button", "del", "Șterge"); d.type = "button"; bis.append(d); }
+  if (it.local) {
+    const ed = el("button", "edit", "Editează"); ed.type = "button";
+    const d = el("button", "del", "Șterge"); d.type = "button"; bis.append(ed, d);
+  }
   const adr = el("div", "adr");
   if (r.a) {
     const a = el("a", "", r.a); a.target = "_blank"; a.rel = "noopener";
@@ -299,6 +311,7 @@ function buildRow(it) {
   const tel = el("div", "tel");
   if (r.t) { const ta = el("a", "", r.t); ta.href = "tel:" + r.t.replace(/[^\d+]/g, ""); tel.append(el("span", "lbl", "📞 "), ta); }
   li.append(chk, meta, bis, adr, prog, tel);
+  li._sig = sigOf(it);
   li._when = when; li._search = norm([r.b, r.a, r.z].join(" ")); li._zones = zonesOf(r.z);
   return li;
 }
@@ -306,8 +319,11 @@ function syncRows() {
   const items = allRows(), keep = new Set(items.map(i => i.k));
   for (const k in rowEls) if (!keep.has(k)) { rowEls[k].remove(); delete rowEls[k]; }
   items.forEach(it => {
-    if (rowEls[it.k]) {                       // actualizează eticheta (+1, +2…) dacă s-a șters ceva
-      const n = rowEls[it.k].querySelector(".nr"); if (n) n.textContent = it.label;
+    if (rowEls[it.k]) {
+      const old = rowEls[it.k];
+      if (it.local && old._sig !== sigOf(it)) {            // locație modificată (aici sau pe alt telefon)
+        const nw = buildRow(it); old.replaceWith(nw); rowEls[it.k] = nw;
+      } else { const n = old.querySelector(".nr"); if (n) n.textContent = it.label; }   // eticheta (+1, +2…)
     } else { const li = buildRow(it); list.append(li); rowEls[it.k] = li; }
   });
 }
@@ -364,41 +380,104 @@ function updateAll() {
 /* ---------- stare sincronizare ---------- */
 function setStatus(s) {
   const p = $("sync"); p.className = "pill " + s;
-  p.textContent = { ok: "✓ Salvat pentru toți", saving: "Se salvează…", offline: "Offline – se salvează mai târziu", local: "Doar pe acest telefon" }[s];
+  p.textContent = { ok: "✓ Salvat pentru toți", saving: "Se salvează…", offline: "Offline – se salvează mai târziu", rules: "⚠ Reguli Firebase", local: "Doar pe acest telefon" }[s];
+}
+
+/* ---------- locații comune (Firebase: /places) ---------- */
+const num = x => typeof x === "number";
+function toPlace(c) {
+  const o = { b: c.b, a: c.a || "", z: c.z || "", t: c.t || "", ts: c.ts || Date.now() };
+  if (c.pos) { o.lat = c.pos[0]; o.lng = c.pos[1]; }
+  if (c.g && c.gk === cleanAddr(c.a)) { o.glat = c.g[0]; o.glng = c.g[1]; o.gk = c.gk; }
+  return o;
+}
+function fromPlace(id, v) {
+  return { id, b: v.b, a: v.a || "", z: v.z || "", t: v.t || "", ts: v.ts || 0,
+    pos: num(v.lat) && num(v.lng) ? [v.lat, v.lng] : null,
+    g: num(v.glat) && num(v.glng) ? [v.glat, v.glng] : null, gk: typeof v.gk === "string" ? v.gk : "" };
+}
+function newId() { let n = Date.now(); while (custom.some(c => c.id === String(n))) n++; return String(n); }
+function savePlace(c) {
+  lsSet(LS_CUSTOM, custom);
+  if (DB && !isLocalKey(c.id)) { pendingP[c.id] = toPlace(c); lsSet(LS_PENDING_P, pendingP); setStatus("saving"); flush(); }
+}
+function removePlace(c) {
+  custom = custom.filter(x => x.id !== c.id); delete checks[c.id];
+  lsSet(LS_CUSTOM, custom); lsSet(LS_CHECKS, checks);
+  if (DB && !isLocalKey(c.id)) {
+    pendingP[c.id] = null; pending[c.id] = null;
+    lsSet(LS_PENDING_P, pendingP); lsSet(LS_PENDING, pending); setStatus("saving"); flush();
+  }
+  updateAll();
+}
+function rebuildCustom(pd) {
+  const arr = Object.keys(pd).filter(id => pd[id] && typeof pd[id].b === "string").map(id => fromPlace(id, pd[id]));
+  for (const id in pendingP) {
+    const i = arr.findIndex(x => x.id === id);
+    if (pendingP[id] === null) { if (i >= 0) arr.splice(i, 1); }
+    else if (i >= 0) arr[i] = fromPlace(id, pendingP[id]); else arr.push(fromPlace(id, pendingP[id]));
+  }
+  arr.sort((x, y) => (x.ts - y.ts) || (x.id < y.id ? -1 : 1));
+  custom = arr; lsSet(LS_CUSTOM, custom);
+}
+/* locațiile adăugate local de versiunile vechi devin comune (o singură dată) */
+function migrateLocal() {
+  let n = 0;
+  custom.filter(c => isLocalKey(c.id)).forEach(c => {
+    const old = c.id, nid = newId();
+    c.id = nid; c.ts = c.ts || Date.now() + n; n++;
+    if (checks[old]) { checks[nid] = checks[old]; pending[nid] = checks[nid]; delete checks[old]; }
+    for (const k of Object.keys(geo)) if (k.indexOf(old + "|") === 0) { geo[nid + k.slice(old.length)] = geo[k]; delete geo[k]; }
+    pendingP[nid] = toPlace(c);
+  });
+  if (n) { lsSet(LS_CUSTOM, custom); lsSet(LS_CHECKS, checks); lsSet(LS_PENDING, pending); lsSet(LS_PENDING_P, pendingP); lsSet(LS_GEO, geo); }
 }
 
 /* ---------- Firebase REST ---------- */
 let flushing = false;
+const hasPending = () => Object.keys(pending).length > 0 || Object.keys(pendingP).length > 0;
+const isRulesErr = e => !!e && (e.status === 401 || e.status === 403);
+async function send(path, v) {
+  const r = await fetch(DB + path + ".json", { method: v == null ? "DELETE" : "PUT", body: v == null ? undefined : JSON.stringify(v) });
+  if (!r.ok) { const e = new Error("http " + r.status); e.status = r.status; throw e; }
+}
+async function drain(map, base, key) {
+  for (const k of Object.keys(map)) {
+    const v = map[k];
+    await send(base + k, v);
+    if (map[k] === v) delete map[k];
+    lsSet(key, map);
+  }
+}
 async function flush() {
   if (!DB || flushing) return;
-  flushing = true;
+  flushing = true; let status = "ok";
   try {
-    while (Object.keys(pending).length) {
-      for (const k of Object.keys(pending)) {
-        const v = pending[k];
-        const r = await fetch(DB + "/posters/" + k + ".json", { method: v == null ? "DELETE" : "PUT", body: v == null ? undefined : JSON.stringify(v) });
-        if (!r.ok) throw new Error("http " + r.status);
-        if (pending[k] === v) delete pending[k];
-        lsSet(LS_PENDING, pending);
-      }
-    }
-    setStatus("ok");
-  } catch (e) { setStatus("offline"); }
-  flushing = false;
+    do {
+      try { await drain(pending, "/posters/", LS_PENDING); } catch (e) { status = isRulesErr(e) ? "rules" : "offline"; break; }
+      try { await drain(pendingP, "/places/", LS_PENDING_P); rulesDenied = false; }
+      catch (e) { if (isRulesErr(e)) { rulesDenied = true; status = "rules"; } else status = "offline"; break; }
+    } while (hasPending());
+  } finally { flushing = false; }
+  setStatus(status);
 }
 async function pull() {
   if (!DB) return;
   try {
-    const r = await fetch(DB + "/posters.json", { cache: "no-store" });
-    if (!r.ok) throw new Error("http " + r.status);
-    const d = (await r.json()) || {};
+    const [r1, r2] = await Promise.all([fetch(DB + "/posters.json", { cache: "no-store" }), fetch(DB + "/places.json", { cache: "no-store" })]);
+    if (!r1.ok) { const e = new Error("http " + r1.status); e.status = r1.status; throw e; }
+    const d = (await r1.json()) || {};
     const next = {};
-    for (const k in d) if (typeof d[k] === "number") next[k] = d[k];
+    for (const k in d) if (num(d[k])) next[k] = d[k];
     for (const k in pending) { if (pending[k] == null) delete next[k]; else next[k] = pending[k]; }
-    for (const k in checks) if (isLocalKey(k)) next[k] = checks[k];   // bifările locațiilor locale rămân pe telefon
-    checks = next; lsSet(LS_CHECKS, checks); updateAll();
-    if (!Object.keys(pending).length) setStatus("ok");
-  } catch (e) { setStatus("offline"); }
+    for (const k in checks) if (isLocalKey(k)) next[k] = checks[k];
+    checks = next; lsSet(LS_CHECKS, checks);
+    if (r2.ok) { rulesDenied = false; rebuildCustom((await r2.json()) || {}); }
+    else if (r2.status === 401 || r2.status === 403) rulesDenied = true;
+    else throw new Error("http " + r2.status);
+    updateAll();
+    setStatus(rulesDenied ? "rules" : hasPending() ? "saving" : "ok");
+  } catch (e) { setStatus(isRulesErr(e) ? "rules" : "offline"); }
 }
 
 /* ---------- acțiuni ---------- */
@@ -427,11 +506,11 @@ list.addEventListener("click", e => {
   if (e.target.closest("a")) return;
   const li = e.target.closest(".row"); if (!li) return;
   const k = li.dataset.k;
+  if (e.target.closest(".edit")) { const c = custom.find(x => x.id === k); if (c) openSheet(c); return; }
   if (e.target.closest(".del")) {
     const c = custom.find(x => x.id === k);
-    if (c && confirm("Ștergi „" + c.b + "” din lista de pe acest telefon?")) {
-      custom = custom.filter(x => x.id !== k); delete checks[k];
-      lsSet(LS_CUSTOM, custom); lsSet(LS_CHECKS, checks); updateAll(); showToast("Șters: " + c.b, false);
+    if (c && confirm("Ștergi „" + c.b + "”" + (DB ? " pentru toți?" : " din lista de pe acest telefon?"))) {
+      removePlace(c); showToast("Șters: " + c.b, false);
     }
     return;
   }
@@ -453,9 +532,28 @@ zoneSelect.addEventListener("change", () => { zoneSel = zoneSelect.value; applyF
 
 /* ---------- adăugare locație (locală) ---------- */
 const overlay = $("overlay");
-function openSheet() { $("sheet").reset(); $("fErr").textContent = ""; overlay.classList.add("open"); setTimeout(() => $("fName").focus(), 50); }
+let editId = null;
+function parseCoords(s) {
+  s = (s || "").trim(); if (!s) return null;
+  const ok = (a, b) => (a >= -90 && a <= 90 && b >= -180 && b <= 180) ? [a, b] : null;
+  const N = "(-?\\d+(?:\\.\\d+)?)";
+  let m;
+  if ((m = s.match(new RegExp("!3d" + N + "!4d" + N)))) return ok(+m[1], +m[2]);
+  if ((m = s.match(new RegExp("@" + N + ",\\s*" + N)))) return ok(+m[1], +m[2]);
+  if ((m = s.match(new RegExp("[?&](?:q|ll|query|center)=" + N + "(?:,|%2C)\\s*" + N, "i")))) return ok(+m[1], +m[2]);
+  if ((m = s.match(new RegExp("^" + N + "\\s*[,;\\s]\\s*" + N + "$")))) return ok(+m[1], +m[2]);
+  return null;
+}
+function openSheet(c) {
+  $("sheet").reset(); $("fErr").textContent = ""; editId = c ? c.id : null;
+  $("sheetTitle").textContent = c ? "Editează locația" : "Adaugă o locație";
+  $("sheetNote").textContent = DB ? "Locația apare pentru toți cei care folosesc pagina." : "Se salvează doar pe acest telefon și o vezi doar tu.";
+  $("fGo").textContent = c ? "Salvează" : "Adaugă";
+  if (c) { $("fName").value = c.b; $("fAddr").value = c.a || ""; $("fZone").value = c.z || ""; $("fTel").value = c.t || ""; $("fPos").value = c.pos ? c.pos[0] + ", " + c.pos[1] : ""; }
+  overlay.classList.add("open"); setTimeout(() => $("fName").focus(), 50);
+}
 function closeSheet() { overlay.classList.remove("open"); }
-$("fab").addEventListener("click", openSheet);
+$("fab").addEventListener("click", () => openSheet());
 $("fCancel").addEventListener("click", closeSheet);
 overlay.addEventListener("click", e => { if (e.target === overlay) closeSheet(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
@@ -463,21 +561,41 @@ $("sheet").addEventListener("submit", e => {
   e.preventDefault();
   const b = $("fName").value.trim();
   if (!b) { $("fErr").textContent = "Scrie numele bisericii sau al locației."; $("fName").focus(); return; }
-  const c = { id: "x" + Date.now().toString(36), b, a: $("fAddr").value.trim(), z: $("fZone").value.trim(), t: $("fTel").value.trim() };
-  custom.push(c); lsSet(LS_CUSTOM, custom);
+  const posTxt = $("fPos").value.trim(); let pos = null;
+  if (posTxt) {
+    pos = parseCoords(posTxt);
+    if (!pos) {
+      $("fErr").textContent = /goo\.gl|maps\.app/i.test(posTxt)
+        ? "Linkul scurt nu conține coordonatele. Deschide-l în Google Maps și copiază coordonatele sau linkul complet din bara browserului."
+        : "Nu am înțeles poziția. Lipește coordonate (ex. 46.7712, 23.5897) sau un link Google Maps complet.";
+      $("fPos").focus(); return;
+    }
+  }
+  const data = { b, a: $("fAddr").value.trim(), z: $("fZone").value.trim(), t: $("fTel").value.trim(), pos };
+  let c;
+  if (editId) {
+    c = custom.find(x => x.id === editId);
+    Object.assign(c, data);
+    for (const k in geo) if (k.indexOf(editId + "|") === 0) delete geo[k];   // caută din nou poziția
+    lsSet(LS_GEO, geo);
+  } else {
+    c = Object.assign({ id: newId(), ts: Date.now() }, data);
+    custom.push(c);
+  }
+  savePlace(c);
   filter = "all"; zoneSel = ""; query = ""; $("q").value = "";
   document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x.dataset.f === "all" ? "true" : "false"));
   closeSheet(); updateAll();
   const li = rowEls[c.id];
   li.scrollIntoView({ behavior: "smooth", block: "center" });
   li.classList.add("flash"); setTimeout(() => li.classList.remove("flash"), 1500);
-  showToast("Adăugat pe acest telefon: " + b, false);
+  showToast((editId ? "Salvat: " : DB ? "Adăugat pentru toți: " : "Adăugat pe acest telefon: ") + b, false);
 });
 
 /* ---------- hartă ---------- */
 const LS_GEO = "afise-cluj-geo-v1", VIEWBOX = "23.45,46.84,23.72,46.70";   // zona Cluj-Napoca
 let geo = Object.assign({}, GEO_SEED, lsGet(LS_GEO, {}));
-for (const k in geo) if (k[0] === "x" && geo[k] === 0) delete geo[k];            // { cheie: [lat,lng] | 0 (negăsit) }
+for (const k in geo) if (k.split("|")[0].length > 4 && geo[k] === 0) delete geo[k];   // locațiile adăugate se caută din nou            // { cheie: [lat,lng] | 0 (negăsit) }
 let mapOpen = false, map = null, markers = {}, geoRunning = false, geoError = false, geoToken = 0, leafletP = null;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -486,6 +604,18 @@ function cleanAddr(a) {
     .replace(/[,\s]+$/, "").replace(/\bBd\.\s*/g, "Bulevardul ").replace(/\bStr\.\s*/g, "Strada ").trim();
 }
 const geoKey = it => it.k + "|" + cleanAddr(it.r.a);
+function posOf(it) {                       // [lat,lng] | 0 (negăsit) | undefined (încă necăutat)
+  if (it.pos) return it.pos;
+  if (it.g && it.gk === cleanAddr(it.r.a)) return it.g;
+  return geo[geoKey(it)];
+}
+const needsGeo = it => posOf(it) === undefined;
+function shareGeo(id, p) {                 // poziția găsită se salvează pentru toți
+  const c = custom.find(x => x.id === id); if (!c || c.pos) return;
+  c.g = p; c.gk = cleanAddr(c.a); lsSet(LS_CUSTOM, custom);
+  if (DB && !isLocalKey(id) && !pendingP[id])
+    fetch(DB + "/places/" + id + ".json", { method: "PATCH", body: JSON.stringify({ glat: p[0], glng: p[1], gk: c.gk }) }).catch(() => {});
+}
 
 function loadLeaflet() {
   if (window.L) return Promise.resolve();
@@ -515,7 +645,7 @@ async function nominatim(q, bounded) {
 async function geocode(it) {
   const a = cleanAddr(it.r.a), name = it.r.b.replace(/\(.*?\)/g, "").trim();
   const z = it.r.z && it.r.z !== "Altele" ? it.r.z : "";
-  const nm = /biseric|capel|mănăst|parohi/i.test(name) ? name : "biserica " + name;
+  const nm = /biseric|capel|manast|parohi|asezam/.test(norm(name)) ? name : "biserica " + name;
   const tries = [];
   if (a) { tries.push([a + ", Cluj-Napoca", true]); tries.push([a + ", Cluj", false]); }
   tries.push([[nm, a, z].filter(Boolean).join(", ") + ", Cluj", false]);
@@ -548,19 +678,21 @@ function refreshMarkers() {
   const items = allRows(), keep = new Set(items.map(i => i.k));
   for (const k in markers) if (!keep.has(k)) { markers[k].remove(); delete markers[k]; }
   items.forEach(it => {
-    const p = geo[geoKey(it)];
-    if (p && !markers[it.k]) addMarker(it, p);
-    const m = markers[it.k];
+    const p = posOf(it);
+    let m = markers[it.k];
+    if (p && !m) { addMarker(it, p); m = markers[it.k]; }
+    else if (!p && m) { m.remove(); delete markers[it.k]; m = null; }
+    else if (p && m && it.local) m.setLatLng(p);
     if (m) { m.setIcon(iconFor(!!checks[it.k])); m.setPopupContent(popupFor(it)); }
   });
-  if (!geoRunning && !geoError && items.some(it => !(geoKey(it) in geo))) runGeo();
+  if (!geoRunning && !geoError && items.some(needsGeo)) runGeo();
   updateMapInfo();
 }
 function updateMapInfo() {
   const items = allRows(), placed = Object.keys(markers).length;
-  const missing = items.filter(it => geo[geoKey(it)] === 0);
+  const missing = items.filter(it => posOf(it) === 0);
   $("mapInfo").textContent = placed + " din " + items.length + " pe hartă" + (geoRunning ? " · se caută pozițiile…" : "");
-  $("mapMiss").textContent = missing.length && !geoRunning ? "Fără poziție: " + missing.map(i => i.r.b).join(", ") : "";
+  $("mapMiss").textContent = missing.length && !geoRunning ? "Fără poziție: " + missing.map(i => i.r.b).join(", ") + " — în listă apasă Editează și adaugă coordonatele" : "";
   $("mapRetry").hidden = !geoError;
   if (geoError) $("mapInfo").textContent += " · căutarea s-a oprit (conexiune?)";
 }
@@ -573,18 +705,18 @@ async function runGeo() {
   geoRunning = true; geoError = false; const token = ++geoToken; let fresh = 0;
   updateMapInfo();
   try {
-    for (const it of allRows().filter(i => !(geoKey(i) in geo))) {
+    for (const it of allRows().filter(needsGeo)) {
       if (!mapOpen || token !== geoToken) break;
       const p = await geocode(it);
       geo[geoKey(it)] = p || 0; lsSet(LS_GEO, geo);
-      if (p) addMarker(it, p);
+      if (p) { addMarker(it, p); if (it.local) shareGeo(it.k, p); }
       fresh++; updateMapInfo();
       await sleep(1100);
     }
   } catch (e) { geoError = true; }
   geoRunning = false; updateMapInfo();
   if (fresh && mapOpen) fitMap();
-  if (mapOpen && !geoError && allRows().some(i => !(geoKey(i) in geo))) setTimeout(runGeo, 50);
+  if (mapOpen && !geoError && allRows().some(needsGeo)) setTimeout(runGeo, 50);
 }
 async function openMap() {
   syncExport(); mapOpen = true; $("mapov").hidden = false; document.body.style.overflow = "hidden";
@@ -629,9 +761,10 @@ $("theme").addEventListener("click", () => {
 applyTheme(document.documentElement.dataset.theme || "dark");
 
 /* ---------- pornire ---------- */
+if (DB) migrateLocal();
 updateAll();
 if (DB) {
-  setStatus(Object.keys(pending).length ? "saving" : "ok");
+  setStatus(hasPending() ? "saving" : "ok");
   flush().then(pull);
   setInterval(() => { if (!document.hidden) flush().then(pull); }, 20000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) flush().then(pull); });
