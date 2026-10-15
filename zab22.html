@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#16a34a">
 <title>ZAB 2026 - almost there...</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("zab22-theme")||"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
 <style>
 :root{
   --bg:#f4f6f5; --card:#ffffff; --text:#14201a; --muted:#5d6b63; --line:#dfe5e1;
@@ -12,13 +14,13 @@
   --amber-bg:#fdf1d8; --amber-text:#8a5a00; --gray-bg:#eceeed; --gray-text:#55605a;
   --accent:#1d4ed8; --shadow:0 1px 2px rgba(0,0,0,.06);
 }
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#0f1512; --card:#18211c; --text:#e8efe9; --muted:#9aa8a0; --line:#27332c;
-    --green:#22c55e; --green-bg:#12301f; --green-text:#7be0a0;
-    --amber-bg:#3a2e12; --amber-text:#f2c466; --gray-bg:#252d28; --gray-text:#a4b0a8;
-    --accent:#8fb0ff; --shadow:none;
-  }
+html{color-scheme:light}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0f1512; --card:#18211c; --text:#e8efe9; --muted:#9aa8a0; --line:#27332c;
+  --green:#22c55e; --green-bg:#12301f; --green-text:#7be0a0;
+  --amber-bg:#3a2e12; --amber-text:#f2c466; --gray-bg:#252d28; --gray-text:#a4b0a8;
+  --accent:#8fb0ff; --shadow:none;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{scroll-padding-top:150px}
@@ -136,7 +138,9 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
 .mapov[hidden]{display:none}
 .maphead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top,0px));background:var(--card);border-bottom:1px solid var(--line)}
 .maphead b{font-size:1.05rem;display:block}
-.maphead small{color:var(--muted);font-size:.8rem}
+.maphead small{display:block;color:var(--muted);font-size:.8rem}
+.mapact{display:flex;gap:8px;align-items:center}
+.mapact button[hidden]{display:none}
 .maphead button,.mapfoot button{font:inherit;font-weight:700;height:42px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);cursor:pointer;white-space:nowrap}
 #map{flex:1;position:relative;z-index:0;isolation:isolate;min-height:0}
 .mapfoot{padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line);font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -151,11 +155,27 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
 .pop a{color:#1d4ed8;display:inline-block;margin-top:8px;font-size:.85rem}
 .pop .popbtn{display:block;width:100%;margin-top:8px;height:42px;border-radius:10px;border:0;font:inherit;font-weight:700;background:#16a34a;color:#fff;cursor:pointer}
 .pop .popbtn.done{background:#e1e8e3;color:#14201a}
+
+.titlebar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 0 4px}
+.titlebar h1{margin:0}
+.theme{position:relative;flex:none;display:flex;align-items:center;width:92px;height:42px;padding:3px;border-radius:99px;
+  background:var(--card);border:1px solid var(--line);cursor:pointer;color:inherit;font:inherit}
+.theme .knob{position:absolute;top:3px;left:3px;width:41px;height:34px;border-radius:99px;background:var(--green-bg);
+  box-shadow:inset 0 0 0 2px var(--green);transition:transform .22s ease}
+.theme .ico{position:relative;z-index:1;width:41px;text-align:center;font-size:1.05rem;line-height:1;pointer-events:none;transition:opacity .2s,filter .2s}
+:root[data-theme="light"] .theme .knob{transform:translateX(44px)}
+:root[data-theme="dark"] .theme .sun,:root[data-theme="light"] .theme .moon{opacity:.45;filter:grayscale(.7)}
+.theme:active .knob{filter:brightness(.95)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>ZAB 2026 - almost there...</h1>
+  <div class="titlebar">
+    <h1>ZAB 2026 - almost there...</h1>
+    <button class="theme" id="theme" type="button" role="switch" aria-checked="true" aria-label="Schimbă tema: dark / light">
+      <span class="knob"></span><span class="ico moon">🌙</span><span class="ico sun">☀️</span>
+    </button>
+  </div>
   <p class="sub">Bifează locația atunci când ai lăsat afișul acolo. Bifarea se vede pentru toți.</p>
   <div class="banner" id="localBanner" hidden>Mod local: bifările se salvează doar pe acest telefon. Pentru salvare comună completează <b>DB_URL</b> în fișier.</div>
 
@@ -192,14 +212,14 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
 
 <div class="mapov" id="mapov" hidden>
   <div class="maphead">
-    <div><b>Hartă biserici</b><small id="mapInfo"></small></div>
-    <button id="mapClose" type="button">✕ Închide</button>
+    <div><b>Hartă biserici</b><small id="mapInfo"></small><small id="mapMiss"></small></div>
+    <div class="mapact">
+      <button id="mapRetry" type="button" hidden>Reîncearcă</button>
+      <button id="mapExport" type="button" hidden>Copiază pozițiile</button>
+      <button id="mapClose" type="button">✕ Închide</button>
+    </div>
   </div>
   <div id="map"></div>
-  <div class="mapfoot" id="mapFoot">
-    <span class="txt"><span class="dot todo"></span>de făcut &nbsp; <span class="dot ok"></span>bifat · pozițiile sunt aproximative, căutate automat după adresă<span id="mapMiss"></span></span>
-    <button id="mapRetry" type="button" hidden>Reîncearcă</button>
-  </div>
 </div>
 
 <button class="fab" id="fab" type="button"><span class="plus"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Adaugă locație</button>
@@ -231,6 +251,9 @@ const DB_URL = "https://zab22-c95ca-default-rtdb.europe-west1.firebasedatabase.a
 
 /* Cheia CARTO pentru harta (gratuită: carto.com/basemaps/apikey). Fără cheie, harta apare cu filigran „API KEY REQUIRED”. */
 const CARTO_KEY = "cb1_4luc_1_c40b193c2d7fa1e42a42d02d";
+
+/* Poziții [lat,lng] precalculate ale locațiilor din listă, ca harta să se încarce instant. */
+const GEO_SEED = {"1|Calea Dorobanților 102":[46.7770664,23.6188292],"2|Calea Dorobanților 70":[46.7729807,23.60715],"3|Mărăști":[46.7804568,23.6125126],"4|Strada Fabricii 1":[46.7793959,23.614001],"5|Strada Târnavelor":[46.7794494,23.6286294],"6|Strada Dionisie Roman 18":[46.7791091,23.6362103],"7|Strada Unirii 1A":[46.7689441,23.6198029],"8|Strada Take Ionescu 4":[46.7669487,23.6191406],"9|Aleea Rășinari 1A":[46.7620023,23.615094],"10|Strada Puieților":[46.7923724,23.5983312],"11|Bulevardul Muncii 8":[46.7980054,23.6113503],"12|Calea Traian Vuia 89":[46.7853156,23.6530779],"13|Piața Avram Iancu":[46.7717052,23.5964539],"14|Bulevardul Eroilor 22-24":[46.7699652,23.593392],"15|Strada Bisericii Ortodoxe 10":[46.7655987,23.5892217],"16|Strada Horea":[46.7743183,23.5876062],"17|Strada Republicii":[46.7606304,23.591046],"18|Calea Moților 25":[46.7672801,23.5826417],"19|Strada Primăverii":[46.7541024,23.5522443],"20|Strada Govora 19":[46.7595393,23.5668648],"21|Strada Govora 17":[46.7576241,23.5665784],"22|Strada Plopilor 46":[46.763921,23.5632074],"23|Strada Porțile de Fier":[46.7620848,23.5547091],"24|Strada Corneliu Coposu 34":[46.7875138,23.5763433],"25|Strada Donath 120-122":[46.7704444,23.5502585],"26|Strada Fântânele 30A":[46.7671283,23.548092],"27|Strada Rarău":[46.7744701,23.5643188],"28|Calea Baciului 22":[46.7844193,23.5562123],"29|Strada Gruia":[46.7789916,23.5792727],"30|Strada Meteor":[46.7544595,23.5898467],"31|Strada Viilor 33":[46.7546288,23.5840659],"32|Strada Observatorului":[46.754357,23.5836562],"33|Strada Galaxiei 6":[46.7601847,23.6074326],"34|Strada Făgetului 26":[46.7331965,23.5871613],"35|Strada Câmpului 305":[46.7519242,23.5651558],"36|Strada Vasile Conta":[46.7518407,23.605031],"37|Strada Borhanciului":[46.7519436,23.6362167],"38|Colonia Sopor":[46.7414237,23.6614259],"39|Strada Zăvoiului":[46.751535,23.6212796],"40|Strada Dâmboviței":[46.7802849,23.6199834],"41|Strada Arțarului 7-11":[46.7535325,23.6134419],"42|Strada Pomet":[46.81407,23.6155379],"43|Strada Eugen Ionesco 47, bloc C1":[46.746342,23.586544],"44|Pata Rât":[46.7741712,23.6897147]};
 
 const DATA = [{"n": 1, "z": "Mărăști", "b": "Sf. Apostol Toma", "a": "Calea Dorobanților 102", "p": "De la 7:00 (L–V până la 12:00, sâmbătă până la 19:00)", "t": "0740 849 370", "o": "Da"}, {"n": 2, "z": "Mărăști", "b": "Înălțarea Domnului", "a": "Calea Dorobanților 70", "p": "7:00–19:00 zilnic", "t": "", "o": "Da"}, {"n": 3, "z": "Mărăști", "b": "Întâmpinarea Domnului", "a": "Mărăști (vis-à-vis de blocul Farmec), fără număr", "p": "De la 8:00 (duminică 9:00); luni până la 10:30", "t": "0752 202 110", "o": "Parțial"}, {"n": 4, "z": "Mărăști", "b": "Sf. Ioan Botezătorul", "a": "Str. Fabricii 1", "p": "L–S 8:00–10:00; duminică 9:00–12:30", "t": "0745 398 107", "o": "Parțial"}, {"n": 5, "z": "Mărăști", "b": "Sf. Ilie", "a": "Str. Târnavelor (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 6, "z": "Mărăști", "b": "Sf. Ștefan", "a": "Str. Dionisie Roman 18", "p": "Neafișat", "t": "0741 155 489", "o": "Necunoscut"}, {"n": 7, "z": "Gheorgheni", "b": "Sf. Dimitrie cel Nou", "a": "Str. Unirii 1A", "p": "8:00–20:00 (duminică de la 9:00)", "t": "0757 032 973", "o": "Parțial"}, {"n": 8, "z": "Gheorgheni", "b": "Sf. Dimitrie", "a": "Str. Take Ionescu 4", "p": "L–S 8:00–9:00; duminică de la 9:45", "t": "", "o": "Parțial"}, {"n": 9, "z": "Gheorgheni", "b": "Nașterea Domnului", "a": "Aleea Rășinari 1A", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 10, "z": "Iris", "b": "Buna Vestire", "a": "Str. Puieților (fără număr)", "p": "8:00–20:00 zilnic", "t": "", "o": "Parțial"}, {"n": 11, "z": "Iris", "b": "Sf. Ierarh Alexandru", "a": "Bd. Muncii 8", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 12, "z": "Someșeni", "b": "Nașterea Maicii Domnului", "a": "Calea Traian Vuia 89", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 13, "z": "Centru", "b": "Catedrala Mitropolitană", "a": "Piața Avram Iancu", "p": "6:00–21:00 (duminică de la 7:00)", "t": "0264 431 004", "o": "Da"}, {"n": 14, "z": "Centru", "b": "Schimbarea la Față", "a": "Bd. Eroilor 22-24", "p": "L–V de la 7:00, sâmbătă și duminică de la 8:30, până la 19:00", "t": "", "o": "Da"}, {"n": 15, "z": "Centru", "b": "Sf. Treime", "a": "Str. Bisericii Ortodoxe 10", "p": "8:00–18:00 (duminică 9:00–13:00)", "t": "0743 075 672", "o": "Parțial"}, {"n": 16, "z": "Centru", "b": "Sf. Nicolae", "a": "Str. Horea (fără număr)", "p": "Neafișat", "t": "0746 047 871", "o": "Necunoscut"}, {"n": 17, "z": "Centru", "b": "Sf. Dimitrie Izvorâtorul de Mir", "a": "Str. Republicii (lângă Institutul Oncologic), fără număr", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 18, "z": "Centru", "b": "Sf. Constantin și Elena", "a": "Calea Moților 25", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 19, "z": "Mănăștur", "b": "Sf. Petru și Pavel", "a": "Str. Primăverii (fără număr)", "p": "6:30–19:30 zilnic", "t": "", "o": "Da"}, {"n": 20, "z": "Mănăștur", "b": "Adormirea Maicii Domnului", "a": "Str. Govora 19", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 21, "z": "Mănăștur", "b": "Capela Veche Mănăștur", "a": "Str. Govora 17", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 22, "z": "Mănăștur", "b": "Înălțarea Sfintei Cruci", "a": "Str. Plopilor 46", "p": "Neafișat", "t": "0721 857 168", "o": "Necunoscut"}, {"n": 23, "z": "Mănăștur", "b": "Sf. Ioan Gură de Aur", "a": "Str. Porțile de Fier (fără număr)", "p": "Neafișat", "t": "0264 571 943", "o": "Necunoscut"}, {"n": 24, "z": "Mănăștur", "b": "Sf. Arhangheli Mihail și Gavriil", "a": "Str. Corneliu Coposu 34", "p": "7:00–19:00 (vineri până la 20:00; duminică de la 8:00)", "t": "0744 779 169", "o": "Da"}, {"n": 25, "z": "Grigorescu", "b": "Sf. Gheorghe", "a": "Str. Donath 120-122", "p": "7:00–19:00 (duminică de la 8:00)", "t": "0755 060 773", "o": "Da"}, {"n": 26, "z": "Grigorescu", "b": "Pogorârea Sf. Duh", "a": "Str. Fântânele 30A", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 27, "z": "Grigorescu", "b": "Sf. Petru și Pavel", "a": "Str. Rarău (fără număr)", "p": "Neafișat", "t": "0744 771 025", "o": "Necunoscut"}, {"n": 28, "z": "Grigorescu", "b": "Vovidenia (Intrarea în Biserică)", "a": "Calea Baciului 22 (pagina parohiei: nr. 20)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 29, "z": "Gruia", "b": "Sf. Gheorghe", "a": "Str. Gruia (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 30, "z": "Zorilor", "b": "Pogorârea Sf. Duh", "a": "Str. Meteor (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 31, "z": "Zorilor", "b": "Învierea Domnului", "a": "Str. Viilor 33", "p": "Neafișat", "t": "0264 438 407", "o": "Necunoscut"}, {"n": 32, "z": "Zorilor", "b": "Sf. Paraschiva", "a": "Str. Observatorului (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 33, "z": "Zorilor", "b": "Sf. Apostol Andrei", "a": "Str. Galaxiei 6", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 34, "z": "Făget", "b": "Soborul Maicii Domnului", "a": "Str. Făgetului 26", "p": "Neafișat", "t": "0749 184 968", "o": "Necunoscut"}, {"n": 35, "z": "Făget", "b": "Sf. Mucenici Brâncoveni (biserică de lemn)", "a": "Str. Câmpului 305", "p": "Neafișat", "t": "0740 172 388", "o": "Necunoscut"}, {"n": 36, "z": "Buna Ziua", "b": "Sf. Mucenic Mina", "a": "Str. Vasile Conta (fără număr)", "p": "Neafișat", "t": "0745 425 859", "o": "Necunoscut"}, {"n": 37, "z": "Borhanci", "b": "Sf. Ioan Botezătorul", "a": "Str. Borhanciului (fără număr)", "p": "Neafișat", "t": "", "o": "Necunoscut"}, {"n": 38, "z": "Sopor", "b": "Sf. Antonie cel Mare", "a": "Colonia Sopor (fără adresă exactă)", "p": "Neafișat", "t": "0740 190 855", "o": "Necunoscut"}, {"n": 39, "z": "Buna Ziua / Zorilor", "b": "Capela Sf. Iustin Martirul și Filosoful", "a": "Str. Zăvoiului (fără număr)", "p": "Deschisă 24 de ore (conform Google, neconfirmat)", "t": "", "o": "Da"}, {"n": 40, "z": "Mărăști / Gheorgheni", "b": "Sf. Mihail Arhanghel", "a": "Str. Dâmboviței (fără număr)", "p": "Program eronat în Google (1:09–3:59 noaptea) – de verificat", "t": "", "o": "Necunoscut"}, {"n": 41, "z": "Zorilor", "b": "Mănăstirea Sf. Elisabeta", "a": "Str. Arțarului 7-11", "p": "Neafișat", "t": "0264 535 535", "o": "Necunoscut"}, {"n": 42, "z": "Pomet", "b": "Sf. Lazăr (biserică de lemn)", "a": "Str. Pomet (fără număr)", "p": "Neverificat", "t": "", "o": "Necunoscut"}, {"n": 43, "z": "Europa", "b": "Sf. Ioan Botezătorul (capelă în bloc)", "a": "Str. Eugen Ionesco 47, bloc C1", "p": "Neverificat", "t": "", "o": "Necunoscut"}, {"n": 44, "z": "Pata Rât", "b": "Sf. Moise Arapul (biserică de lemn)", "a": "Pata Rât (lângă rampa de gunoi)", "p": "Neverificat", "t": "", "o": "Necunoscut"}];
 const LS_CHECKS = "afise-cluj-checks-v1", LS_PENDING = "afise-cluj-pending-v1", LS_CUSTOM = "afise-cluj-custom-v1";
@@ -453,7 +476,7 @@ $("sheet").addEventListener("submit", e => {
 
 /* ---------- hartă ---------- */
 const LS_GEO = "afise-cluj-geo-v1", VIEWBOX = "23.45,46.84,23.72,46.70";   // zona Cluj-Napoca
-let geo = lsGet(LS_GEO, {});            // { cheie: [lat,lng] | 0 (negăsit) }
+let geo = Object.assign({}, GEO_SEED, lsGet(LS_GEO, {}));            // { cheie: [lat,lng] | 0 (negăsit) }
 let mapOpen = false, map = null, markers = {}, geoRunning = false, geoError = false, geoToken = 0, leafletP = null;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -523,7 +546,7 @@ function updateMapInfo() {
   const items = allRows(), placed = Object.keys(markers).length;
   const missing = items.filter(it => geo[geoKey(it)] === 0);
   $("mapInfo").textContent = placed + " din " + items.length + " pe hartă" + (geoRunning ? " · se caută pozițiile…" : "");
-  $("mapMiss").textContent = missing.length && !geoRunning ? " · fără poziție: " + missing.map(i => i.r.b).join(", ") : "";
+  $("mapMiss").textContent = missing.length && !geoRunning ? "Fără poziție: " + missing.map(i => i.r.b).join(", ") : "";
   $("mapRetry").hidden = !geoError;
   if (geoError) $("mapInfo").textContent += " · căutarea s-a oprit (conexiune?)";
 }
@@ -549,7 +572,7 @@ async function runGeo() {
   if (fresh && mapOpen) fitMap();
 }
 async function openMap() {
-  mapOpen = true; $("mapov").hidden = false; document.body.style.overflow = "hidden";
+  syncExport(); mapOpen = true; $("mapov").hidden = false; document.body.style.overflow = "hidden";
   history.pushState({ map: 1 }, "");
   $("mapInfo").textContent = "se încarcă harta…";
   try { await loadLeaflet(); } catch (e) { $("mapInfo").textContent = "Harta nu s-a putut încărca. Verifică conexiunea la internet."; return; }
@@ -568,6 +591,27 @@ $("mapBtn").addEventListener("click", openMap);
 $("mapClose").addEventListener("click", () => { if (history.state && history.state.map) history.back(); else closeMapNow(); });
 $("mapRetry").addEventListener("click", () => { geoError = false; geoRunning = false; runGeo(); });
 window.addEventListener("popstate", closeMapNow);
+
+const syncExport = () => { $("mapExport").hidden = location.hash.replace("#", "") !== "export"; };
+syncExport(); window.addEventListener("hashchange", syncExport);
+$("mapExport").addEventListener("click", async () => {
+  const json = JSON.stringify(geo);
+  try { await navigator.clipboard.writeText(json); $("mapExport").textContent = "Copiat ✓"; }
+  catch (e) { window.prompt("Copiază textul de mai jos (Ctrl+C) și trimite-l:", json); }
+});
+
+
+/* ---------- temă (dark / light) ---------- */
+function applyTheme(th) {
+  document.documentElement.dataset.theme = th;
+  $("theme").setAttribute("aria-checked", th === "dark" ? "true" : "false");
+}
+$("theme").addEventListener("click", () => {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  applyTheme(next);
+  try { localStorage.setItem("zab22-theme", next); } catch (err) {}
+});
+applyTheme(document.documentElement.dataset.theme || "dark");
 
 /* ---------- pornire ---------- */
 updateAll();
