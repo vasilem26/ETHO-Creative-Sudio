@@ -63,7 +63,7 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
 .list{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
 .row{display:grid;grid-template-columns:64px 1fr;grid-template-areas:"chk meta" "chk bis" "chk adr" "chk prog" "chk tel";
   column-gap:12px;row-gap:3px;align-items:start;background:var(--card);border:2px solid transparent;border-radius:16px;
-  padding:12px 12px 12px 10px;box-shadow:var(--shadow);cursor:pointer;transition:background .15s,border-color .15s}
+  padding:12px 40px 12px 10px;box-shadow:var(--shadow);cursor:pointer;transition:background .15s,border-color .15s}
 .row.done{background:var(--green-bg);border-color:var(--green)}
 .row[hidden]{display:none}
 .chk{grid-area:chk;width:56px;height:56px;border-radius:16px;border:3px solid #9fb0a6;background:transparent;
@@ -103,7 +103,7 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
   html{scroll-padding-top:200px}
   .thead,.row{grid-template-columns:64px 44px 150px 1.1fr 1.2fr 1.3fr 130px 110px;column-gap:12px;align-items:center}
   .thead{display:grid;padding:6px 12px 6px 10px;font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-  .row{grid-template-areas:none;padding:10px 12px 10px 10px;border-radius:14px}
+  .row{grid-template-areas:none;padding:10px 48px 10px 10px;border-radius:14px}
   .list{gap:6px}
   .meta{display:contents}
   .chk{order:1;grid-area:auto;width:44px;height:44px;border-radius:12px;margin-left:6px}
@@ -114,10 +114,7 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
   .lbl{display:none}
 }
 
-.row .pos{display:inline-block;margin-top:6px;margin-right:16px;font:inherit;font-size:.8rem;font-weight:600;color:var(--accent);background:none;border:0;padding:6px 0;cursor:pointer}
 .maphead .linkbtn{height:auto;padding:0;border:0;border-radius:0;background:none;font-weight:600;font-size:inherit;color:var(--accent);text-decoration:underline;cursor:pointer;white-space:normal;text-align:left}
-.row .edit{display:inline-block;margin-top:6px;margin-right:16px;font:inherit;font-size:.8rem;font-weight:600;color:var(--accent);background:none;border:0;padding:6px 0;cursor:pointer}
-.row .del{display:inline-block;margin-top:6px;font:inherit;font-size:.8rem;font-weight:600;color:#c0392b;background:none;border:0;padding:6px 0;cursor:pointer}
 .row.flash{animation:flash 1.4s ease}
 @keyframes flash{0%,60%{box-shadow:0 0 0 4px var(--green)}100%{box-shadow:var(--shadow)}}
 .fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));height:56px;padding:0 22px 0 12px;border-radius:99px;border:0;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;font:inherit;font-weight:700;font-size:1rem;letter-spacing:.01em;cursor:pointer;z-index:15;box-shadow:0 8px 22px rgba(21,128,61,.45),0 2px 6px rgba(0,0,0,.2);display:flex;align-items:center;gap:10px;transition:transform .12s}
@@ -171,6 +168,17 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
 :root[data-theme="light"] .theme .knob{transform:translateX(44px)}
 :root[data-theme="dark"] .theme .sun,:root[data-theme="light"] .theme .moon{opacity:.45;filter:grayscale(.7)}
 .theme:active .knob{filter:brightness(.95)}
+.row{position:relative}
+.more{position:absolute;top:2px;right:2px;width:40px;height:40px;border:0;border-radius:50%;background:transparent;color:var(--muted);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;opacity:.75}
+.more:active,.more[aria-expanded="true"]{background:var(--gray-bg);opacity:1}
+.menu{position:fixed;z-index:50;min-width:200px;background:var(--card);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);padding:6px;display:flex;flex-direction:column}
+.menu[hidden]{display:none}
+.menu button{background:none;border:0;text-align:left;font:inherit;font-size:.95rem;padding:0 12px;min-height:46px;border-radius:10px;color:var(--text);cursor:pointer}
+.menu button:active{background:var(--gray-bg)}
+.menu button.danger{color:#e5484d}
+@media (min-width:880px){.row .more{top:50%;margin-top:-20px;right:6px}}
 </style>
 </head>
 <body>
@@ -249,6 +257,8 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
   </form>
 </div>
 
+<div class="menu" id="menu" role="menu" hidden></div>
+
 <div class="toast" id="toast" role="status"><span id="toastTxt"></span><button id="undo" type="button">Anulează</button></div>
 
 <script>
@@ -301,12 +311,6 @@ function buildRow(it) {
   meta.append(el("span", "open " + norm(r.o), r.o));
   const bis = el("div", "bis"); bis.append(document.createTextNode(r.b));
   const when = el("span", "when"); bis.append(when);
-  if (it.local) {
-    const ed = el("button", "edit", "Editează"); ed.type = "button";
-    const d = el("button", "del", "Șterge"); d.type = "button"; bis.append(ed, d);
-  } else {
-    const pb = el("button", "pos", "Poziție pe hartă"); pb.type = "button"; bis.append(pb);
-  }
   const adr = el("div", "adr");
   if (r.a) {
     const a = el("a", "", r.a); a.target = "_blank"; a.rel = "noopener";
@@ -316,7 +320,10 @@ function buildRow(it) {
   const prog = el("div", "prog"); if (r.p) prog.append(el("span", "lbl", "🕒 "), document.createTextNode(r.p));
   const tel = el("div", "tel");
   if (r.t) { const ta = el("a", "", r.t); ta.href = "tel:" + r.t.replace(/[^\d+]/g, ""); tel.append(el("span", "lbl", "📞 "), ta); }
-  li.append(chk, meta, bis, adr, prog, tel);
+  const more = el("button", "more"); more.type = "button";
+  more.setAttribute("aria-label", "Mai multe"); more.setAttribute("aria-haspopup", "menu"); more.setAttribute("aria-expanded", "false");
+  more.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
+  li.append(chk, meta, bis, adr, prog, tel, more);
   li._sig = sigOf(it);
   li._when = when; li._search = norm([r.b, r.a, r.z].join(" ")); li._zones = zonesOf(r.z);
   return li;
@@ -529,19 +536,32 @@ function toggle(k) {
   const it = allRows().find(x => x.k === k);
   showToast((on ? "Bifat: " : "Debifat: ") + it.r.b, true);
 }
+const menu = $("menu"); let menuBtn = null;
+function closeMenu() { menu.hidden = true; if (menuBtn) menuBtn.setAttribute("aria-expanded", "false"); menuBtn = null; }
+function deletePlace(c) {
+  if (c && confirm("Ștergi „" + c.b + "”" + (DB ? " pentru toți?" : " din lista de pe acest telefon?"))) { removePlace(c); showToast("Șters: " + c.b, false); }
+}
+function openMenu(btn, it) {
+  closeMenu(); menu.innerHTML = "";
+  const add = (label, fn, cls) => { const b = el("button", cls || "", label); b.type = "button"; b.setAttribute("role", "menuitem"); b.onclick = () => { closeMenu(); fn(); }; menu.append(b); };
+  const c = it.local ? custom.find(x => x.id === it.k) : null;
+  if (c) { add("Editează", () => openSheet(c)); add("Șterge", () => deletePlace(c), "danger"); }
+  else add("Poziție pe hartă", () => openPosSheet(it));
+  menu.hidden = false; menuBtn = btn; btn.setAttribute("aria-expanded", "true");
+  const r = btn.getBoundingClientRect(), mw = menu.offsetWidth, mh = menu.offsetHeight;
+  let left = Math.min(Math.max(8, r.right - mw), window.innerWidth - mw - 8), top = r.bottom + 2;
+  if (top + mh > window.innerHeight - 8) top = Math.max(8, r.top - mh - 2);
+  menu.style.left = left + "px"; menu.style.top = top + "px";
+}
+document.addEventListener("click", e => { if (!menu.hidden && !menu.contains(e.target) && !e.target.closest(".more")) closeMenu(); });
+window.addEventListener("scroll", closeMenu, true);
+window.addEventListener("resize", closeMenu);
 list.addEventListener("click", e => {
   if (e.target.closest("a")) return;
   const li = e.target.closest(".row"); if (!li) return;
   const k = li.dataset.k;
-  if (e.target.closest(".pos")) { openPosSheet(allRows().find(i => i.k === k)); return; }
-  if (e.target.closest(".edit")) { const c = custom.find(x => x.id === k); if (c) openSheet(c); return; }
-  if (e.target.closest(".del")) {
-    const c = custom.find(x => x.id === k);
-    if (c && confirm("Ștergi „" + c.b + "”" + (DB ? " pentru toți?" : " din lista de pe acest telefon?"))) {
-      removePlace(c); showToast("Șters: " + c.b, false);
-    }
-    return;
-  }
+  const more = e.target.closest(".more");
+  if (more) { if (menuBtn === more) closeMenu(); else openMenu(more, allRows().find(i => i.k === k)); return; }
   toggle(k);
 });
 $("undo").addEventListener("click", () => {
@@ -604,7 +624,7 @@ function closeSheet() { overlay.classList.remove("open"); posKey = null; }
 $("fab").addEventListener("click", () => openSheet());
 $("fCancel").addEventListener("click", closeSheet);
 overlay.addEventListener("click", e => { if (e.target === overlay) closeSheet(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closeSheet(); closeMenu(); } });
 $("sheet").addEventListener("submit", e => {
   e.preventDefault();
   if (posKey) {
