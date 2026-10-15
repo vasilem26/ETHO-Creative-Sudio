@@ -229,8 +229,8 @@ h1{font-size:1.25rem;margin:16px 0 4px;line-height:1.2}
     <p>Se salvează doar pe acest telefon și o vezi doar tu.</p>
     <label for="fName">Biserică / locație *</label>
     <input id="fName" required placeholder="ex. Sf. Paraschiva">
-    <label for="fAddr">Adresă</label>
-    <input id="fAddr" placeholder="ex. Str. Observatorului 10">
+    <label for="fAddr">Adresă (cu localitatea, dacă e în afara Clujului)</label>
+    <input id="fAddr" placeholder="ex. Str. Avram Iancu 10, Florești">
     <label for="fZone">Zonă</label>
     <input id="fZone" list="zoneList" placeholder="ex. Zorilor">
     <datalist id="zoneList"></datalist>
@@ -476,7 +476,8 @@ $("sheet").addEventListener("submit", e => {
 
 /* ---------- hartă ---------- */
 const LS_GEO = "afise-cluj-geo-v1", VIEWBOX = "23.45,46.84,23.72,46.70";   // zona Cluj-Napoca
-let geo = Object.assign({}, GEO_SEED, lsGet(LS_GEO, {}));            // { cheie: [lat,lng] | 0 (negăsit) }
+let geo = Object.assign({}, GEO_SEED, lsGet(LS_GEO, {}));
+for (const k in geo) if (k[0] === "x" && geo[k] === 0) delete geo[k];            // { cheie: [lat,lng] | 0 (negăsit) }
 let mapOpen = false, map = null, markers = {}, geoRunning = false, geoError = false, geoToken = 0, leafletP = null;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -499,18 +500,31 @@ function loadLeaflet() {
   });
   return leafletP;
 }
-async function nominatim(q) {
-  const u = "https://nominatim.openstreetmap.org/search?format=json&limit=1&bounded=1&accept-language=ro&viewbox=" + VIEWBOX + "&q=" + encodeURIComponent(q);
+const WIDE = "23.10,47.00,24.00,46.55";   // aprox. județul Cluj: stânga,sus,dreapta,jos
+async function nominatim(q, bounded) {
+  const u = "https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ro&countrycodes=ro&viewbox=" +
+    (bounded ? VIEWBOX : WIDE) + "&bounded=" + (bounded ? 1 : 0) + "&q=" + encodeURIComponent(q);
   const r = await fetch(u);
   if (!r.ok) throw new Error("http " + r.status);
   const j = await r.json();
-  return j[0] ? [+j[0].lat, +j[0].lon] : null;
+  if (!j[0]) return null;
+  const lat = +j[0].lat, lon = +j[0].lon;
+  if (lat < 46.55 || lat > 47.0 || lon < 23.1 || lon > 24.0) return null;   // în afara zonei Cluj
+  return [lat, lon];
 }
 async function geocode(it) {
-  const a = cleanAddr(it.r.a); let p = null;
-  if (a) { p = await nominatim(a + ", Cluj-Napoca"); if (!p) await sleep(1100); }
-  if (!p) p = await nominatim("biserica " + it.r.b.replace(/\(.*?\)/g, "").trim() + ", " + (it.r.z || "") + ", Cluj-Napoca");
-  return p;
+  const a = cleanAddr(it.r.a), name = it.r.b.replace(/\(.*?\)/g, "").trim();
+  const z = it.r.z && it.r.z !== "Altele" ? it.r.z : "";
+  const nm = /biseric|capel|mănăst|parohi/i.test(name) ? name : "biserica " + name;
+  const tries = [];
+  if (a) { tries.push([a + ", Cluj-Napoca", true]); tries.push([a + ", Cluj", false]); }
+  tries.push([[nm, a, z].filter(Boolean).join(", ") + ", Cluj", false]);
+  for (let i = 0; i < tries.length; i++) {
+    const p = await nominatim(tries[i][0], tries[i][1]);
+    if (p) return p;
+    if (i < tries.length - 1) await sleep(1100);
+  }
+  return null;
 }
 
 const iconFor = done => L.divIcon({ className: "", html: '<span class="pin ' + (done ? "ok" : "todo") + '">' + (done ? "✓" : "") + "</span>",
@@ -570,6 +584,7 @@ async function runGeo() {
   } catch (e) { geoError = true; }
   geoRunning = false; updateMapInfo();
   if (fresh && mapOpen) fitMap();
+  if (mapOpen && !geoError && allRows().some(i => !(geoKey(i) in geo))) setTimeout(runGeo, 50);
 }
 async function openMap() {
   syncExport(); mapOpen = true; $("mapov").hidden = false; document.body.style.overflow = "hidden";
